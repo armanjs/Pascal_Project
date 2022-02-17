@@ -1,0 +1,23 @@
+PROGRAM Newton;
+BEGIN
+<>
+<=..
+    writeln(' n   Square root');
+    writeln('----------------');
+
+    FOR n := 1 TO 20 DO BEGIN
+        write(n:2);
+
+        root := n;
+        prev := root;
+        diff := 99999;
+
+        WHILE diff > 0.000001 DO BEGIN
+            root := (n/root + root)/2;
+            diff := prev - root;
+            prev := root;
+        END;
+
+        writeln(root:14:6)
+    END
+END.

@@ -1,0 +1,34 @@
+{This is a comment.}
+
+{This is a comment
+ that spans several
+ source lines.}
+
+Two{comments in}{a row} here
+
+{Word tokens}
+Hello world
+begin BEGIN Begin BeGiN begins
+
+{String tokens}
+'Hello, world.'
+'It''s Friday!'
+''
+'A' 'x' ''''
+' '' '' '   ''''''
+'This string
+spans
+source lines.'
+
+{Special symbol tokens}
++ - * / := . , ; : = <> < <= >= > ( ) [ ] { } } ^ ..
++-:=<>=<==.....
+
+{Number tokens}
+0 1 20 00000000000000000032  31415926
+3.1415926  3.1415926535897932384626433 .14
+
+{Bad tokens}
+3.14.15926
+What?
+'String ''not'' closed

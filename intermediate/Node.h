@@ -57,9 +57,17 @@ namespace intermediate {
         Object value;
         vector<Node *> children;
 
+        /**
+         * Constructor
+         * @param type node type.
+         */
         Node(NodeType type)
                 : type(type), lineNumber(0), entry(nullptr) {}
 
+        /**
+         * Adopt a child node.
+         * @param child the child node.
+         */
         void adopt(Node *child) { children.push_back(child); }
     };
 

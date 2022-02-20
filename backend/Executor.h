@@ -30,7 +30,6 @@ namespace backend {
     {
     private:
         int lineNumber;
-        Symtab *symtab;
 
     public:
         /**
@@ -38,7 +37,7 @@ namespace backend {
          */
         static void initialize();
 
-        Executor(Symtab *symtab) : lineNumber(0), symtab(symtab) {}
+        Executor() : lineNumber(0) {}
 
         Object visit(Node *node);
 

@@ -95,7 +95,7 @@ namespace backend {
 
         // Store the value into the variable's symbol table entry.
         string variableName = lhs->text;
-        SymtabEntry *variableId = symtab->lookup(variableName);
+        SymtabEntry *variableId = lhs->entry;
         variableId->setValue(value);
 
         return Object();
@@ -243,10 +243,10 @@ namespace backend {
     Object Executor::visitVariable(Node *variableNode)
     {
         // Obtain the variable's value from its symbol table entry.
-        string variableName = variableNode->text;
-        SymtabEntry *variableId = symtab->lookup(variableName);
+        SymtabEntry *variableId = variableNode->entry;
+        double value = variableId->getValue();
 
-        return variableId->getValue();
+        return value;
     }
 
     Object Executor::visitIntegerConstant(Node *integerConstantNode)

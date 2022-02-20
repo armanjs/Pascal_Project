@@ -84,6 +84,7 @@ namespace frontend {
     Token *Token::Number(char firstChar, Source *source)
     {
         Token *token = new Token(firstChar);
+        token->lineNumber = source->lineNumber();
         int pointCount = 0;
 
         // Loop to get the rest of the characters of the number token.
@@ -111,8 +112,9 @@ namespace frontend {
             token->value.D = stod(token->text);
         }
 
-        else {
-            token->lineNumber = source->lineNumber();
+        else
+        {
+            token->type = TokenType::ERROR;
             tokenError(token, "Invalid number");
         }
 
@@ -123,44 +125,54 @@ namespace frontend {
     {
         Token *token = new Token(firstChar);  // the leading '
         token->lineNumber = source->lineNumber();
+        int length = 0;                       // string length
 
-        for (char ch = source->nextChar(); ch != '\''; ch = source->nextChar())
+        // Loop to append the rest of the characters of the string,
+        // up to but not including the closing quote.
+        bool done = false;
+        char ch = source->nextChar();
+        do
         {
-            token->text += ch;
-            if(ch == EOF){
-                if (token->text.size () > 0)
-                    token->text.resize (token->text.size () - 1);
-                token->type = TokenType::STRING;
-                tokenError(token, "String not closed");
-                return token;
+            // Append characters to the string until ' or EOF.
+            while ((ch != '\'') && (ch != EOF))
+            {
+                token->text += ch;
+                length++;
+                ch = source->nextChar();  // consume the character
             }
-        }
-//        bool nextLine;
-//        char ch = source->currentChar();
-//        if (ch == '\n'){
-//            ch = source->nextChar();
-//            if (isalpha(ch))
-//                nextLine = true;
-//        }
-//
-//        for (char chOuter = source->nextChar(); chOuter != '\n' && nextLine; chOuter = source->nextChar()){
-//            token->text += chOuter;
-//            if(ch == EOF){
-//                if (token->text.size () > 0)
-//                    token->text.resize (token->text.size () - 1);
-//                token->type = TokenType::STRING;
-//                tokenError(token, "String not closed");
-//                return token;
-//            }
-//        }
 
-        token->text += '\'';  // the closing quote
-        source->nextChar();  // consume the closing quote
+            // End of file. An unclosed string.
+            if (ch == EOF)
+            {
+                tokenError(token, "String not closed");
+                done = true;
+            }
 
-        if (token->text.length() > 3 || token->text.length() == 2){
-            token->type = TokenType::STRING;
-        }
-        else token->type = TokenType::CHARACTER;
+                // Got a ' so it can be the closing ', or a ''
+            else
+            {
+                ch = source->nextChar();  // consume the '
+
+                // That was the closing '. Close the string.
+                if (ch != '\'')
+                {
+                    token->text += '\'';
+                    done = true;
+                }
+
+                    // It's '' so append ' to the string.
+                else
+                {
+                    token->text += '\'';
+                    length++;
+                    ch = source->nextChar();  // consume second '
+                }
+            }
+        } while (!done);
+
+        // It's a character token if the string length is 1.
+        // Otherwise, it's a string token.
+        token->type = length == 1 ? TokenType::CHARACTER : TokenType::STRING;
 
         // Don't include the leading and trailing '.
         token->value.S = token->text.substr(1, token->text.length() - 2);
@@ -171,9 +183,24 @@ namespace frontend {
     Token *Token::SpecialSymbol(char firstChar, Source *source)
     {
         Token *token = new Token(firstChar);
+        token->lineNumber = source->lineNumber();
 
         switch (firstChar)
         {
+            case ',' : token->type = TokenType::COMMA;      break;
+            case ';' : token->type = TokenType::SEMICOLON;  break;
+            case '+' : token->type = TokenType::PLUS;       break;
+            case '-' : token->type = TokenType::MINUS;      break;
+            case '*' : token->type = TokenType::STAR;       break;
+            case '/' : token->type = TokenType::SLASH;      break;
+            case '(' : token->type = TokenType::LPAREN;     break;
+            case ')' : token->type = TokenType::RPAREN;     break;
+            case '=' : token->type = TokenType::EQUALS;     break;
+            //case '\'': token->type = TokenType::APOSTROPHE; break; // ' added
+            case '[' : token->type = TokenType::LBRACKET;   break; // [ added
+            case ']' : token->type = TokenType::RBRACKET;   break; // ] added
+            case '^' : token->type = TokenType::CIRCUMFLEX; break; // ^ added
+
             case '.' :
             {
                 char nextChar = source->nextChar();
@@ -190,19 +217,6 @@ namespace frontend {
                 }
                 break;
             }
-            case ',' : token->type = TokenType::COMMA;      break;
-            case ';' : token->type = TokenType::SEMICOLON;  break;
-            case '+' : token->type = TokenType::PLUS;       break;
-            case '-' : token->type = TokenType::MINUS;      break;
-            case '*' : token->type = TokenType::STAR;       break;
-            case '/' : token->type = TokenType::SLASH;      break;
-            case '(' : token->type = TokenType::LPAREN;     break;
-            case ')' : token->type = TokenType::RPAREN;     break;
-            case '=' : token->type = TokenType::EQUALS;     break;
-                //case '\'': token->type = TokenType::APOSTROPHE; break; // ' added
-            case '[' : token->type = TokenType::LBRACKET;   break; // [ added
-            case ']' : token->type = TokenType::RBRACKET;   break; // ] added
-            case '^' : token->type = TokenType::CIRCUMFLEX; break; // ^ added
 
             case '<' : {
                 char nextChar = source->nextChar();
@@ -261,37 +275,15 @@ namespace frontend {
 
                 break;
             }
-            case '{':
-            {
-                token->type = TokenType::COMMENT;
-                while (true) { // continue doing
-                    char nextChar = source->nextChar();
-                    if (nextChar == '}'){ // until } is found
-                        break;}
-                }
-                //delete token; // destructor
-                break;
-            }
-            case '?':
-            {
-                token->type = TokenType::ERROR;
-                token->lineNumber = source->lineNumber();
-                tokenError(token, "Invalid token");
-                break;
-
-            }
-            case '}':
-            {
-                token->type = TokenType::ERROR;
-                token->lineNumber = source->lineNumber();
-                tokenError(token, "Invalid token");
-                break;
-            }
 
 
             case EOF : token->type = END_OF_FILE; break;
 
-            default: token->type = TokenType::ERROR;
+            default:
+            {
+                token->type = TokenType::ERROR;
+                tokenError(token, "Invalid token");
+            }
         }
 
         source->nextChar();  // consume the special symbol

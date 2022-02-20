@@ -13,8 +13,10 @@
 
 #ifndef PASCALPROJECT_OBJECT_H
 #define PASCALPROJECT_OBJECT_H
+
 #include <string>
 #include <algorithm>
+
 using namespace std;
 
 class Object

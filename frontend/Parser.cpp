@@ -27,12 +27,14 @@ namespace frontend {
 
     void Parser::initialize()
     {
+        // Tokens that can start a statement.
         statementStarters.insert(BEGIN);
         statementStarters.insert(IDENTIFIER);
         statementStarters.insert(REPEAT);
         statementStarters.insert(TokenType::WRITE);
         statementStarters.insert(TokenType::WRITELN);
 
+        // Tokens that can immediately follow a statement.
         statementFollowers.insert(SEMICOLON);
         statementFollowers.insert(END);
         statementFollowers.insert(UNTIL);
@@ -113,11 +115,14 @@ namespace frontend {
 
         Node *assignmentNode = new Node(ASSIGN);
 
-        // The assignment Node *adopts the variable Node *as its first child.
-        Node *lhsNode = new Node(VARIABLE);
+        // Enter the variable name into the symbol table
+        // if it isn't already in there.
         string variableName = currentToken->text;
-        SymtabEntry *variableId = symtab->enter(toLowerCase(variableName));
+        SymtabEntry *variableId = symtab->lookup(toLowerCase(variableName));
+        if (variableId == nullptr) variableId = symtab->enter(variableName);
 
+        // The assignment node adopts the variable node as its first child.
+        Node *lhsNode  = new Node(VARIABLE);
         lhsNode->text  = variableName;
         lhsNode->entry = variableId;
         assignmentNode->adopt(lhsNode);
@@ -130,7 +135,7 @@ namespace frontend {
         }
         else syntaxError("Missing :=");
 
-        // The assignment Node *adopts the expression Node *as its second child.
+        // The assignment node adopts the expression node as its second child.
         Node *rhsNode = parseExpression();
         assignmentNode->adopt(rhsNode);
 
@@ -182,7 +187,7 @@ namespace frontend {
     {
         // The current token should now be REPEAT.
 
-        // Create a LOOP node->
+        // Create a LOOP node.
         Node *loopNode = new Node(LOOP);
         currentToken = scanner->nextToken();  // consume REPEAT
 
@@ -190,7 +195,7 @@ namespace frontend {
 
         if (currentToken->type == UNTIL)
         {
-            // Create a TEST node-> It adopts the test expression node->
+            // Create a TEST node. It adopts the test expression node.
             Node *testNode = new Node(TEST);
             lineNumber = currentToken->lineNumber;
             testNode->lineNumber = lineNumber;
@@ -198,7 +203,7 @@ namespace frontend {
 
             testNode->adopt(parseExpression());
 
-            // The LOOP Node *adopts the TEST Node *as its final child.
+            // The LOOP node adopts the TEST node as its final child.
             loopNode->adopt(testNode);
         }
         else syntaxError("Expecting UNTIL");
@@ -210,7 +215,7 @@ namespace frontend {
     {
         // The current token should now be WRITE.
 
-        // Create a WRITE node-> It adopts the variable or string node->
+        // Create a WRITE node-> It adopts the variable or string node.
         Node *writeNode = new Node(NodeType::WRITE);
         currentToken = scanner->nextToken();  // consume WRITE
 
@@ -227,7 +232,7 @@ namespace frontend {
     {
         // The current token should now be WRITELN.
 
-        // Create a WRITELN node-> It adopts the variable or string node->
+        // Create a WRITELN node. It adopts the variable or string node.
         Node *writelnNode = new Node(NodeType::WRITELN);
         currentToken = scanner->nextToken();  // consume WRITELN
 
@@ -252,7 +257,8 @@ namespace frontend {
             node->adopt(parseVariable());
             hasArgument = true;
         }
-        else if (currentToken->type == STRING)
+        else if (   (currentToken->type == CHARACTER)
+                    || (currentToken->type == STRING))
         {
             node->adopt(parseStringConstant());
             hasArgument = true;
@@ -311,9 +317,9 @@ namespace frontend {
 
             currentToken = scanner->nextToken();  // consume relational operator
 
-            // The relational operator Node *adopts the first simple expression
-            // Node *as its first child and the second simple expression node
-            // as its second child. Then it becomes the expression's root node->
+            // The relational operator node adopts the first simple expression
+            // node as its first child and the second simple expression node
+            // as its second child. Then it becomes the expression's root node.
             if (opNode != nullptr)
             {
                 opNode->adopt(exprNode);
@@ -342,9 +348,9 @@ namespace frontend {
 
             currentToken = scanner->nextToken();  // consume the operator
 
-            // The add or subtract Node *adopts the first term Node *as its
-            // first child and the next term Node *as its second child.
-            // Then it becomes the simple expression's root node->
+            // The add or subtract node adopts the first term node as its
+            // first child and the next term node as its second child.
+            // Then it becomes the simple expression's root node.
             opNode->adopt(simpExprNode);
             opNode->adopt(parseTerm());
             simpExprNode = opNode;
@@ -360,7 +366,7 @@ namespace frontend {
         // The term's root node->
         Node *termNode = parseFactor();
 
-        // Keep parsing more factor as long as the current token
+        // Keep parsing more factors as long as the current token
         // is a * or / operator.
         while (termOperators.find(currentToken->type) != termOperators.end())
         {
@@ -369,9 +375,9 @@ namespace frontend {
 
             currentToken = scanner->nextToken();  // consume the operator
 
-            // The multiply or dive Node *adopts the first factor Node *as its
-            // as its first child and the next factor Node *as its second child.
-            // Then it becomes the term's root node->
+            // The multiply or divide node adopts the first factor node as its
+            // as its first child and the next factor node as its second child.
+            // Then it becomes the term's root node.
             opNode->adopt(termNode);
             opNode->adopt(parseFactor());
             termNode = opNode;
@@ -410,13 +416,14 @@ namespace frontend {
     {
         // The current token should now be an identifier.
 
+        // Has the variable been "declared"?
         string variableName = currentToken->text;
         SymtabEntry *variableId = symtab->lookup(toLowerCase(variableName));
-
         if (variableId == nullptr) semanticError("Undeclared identifier");
 
-        Node *node = new Node(VARIABLE);
-        node->text = variableName;
+        Node *node  = new Node(VARIABLE);
+        node->text  = variableName;
+        node->entry = variableId;
 
         currentToken = scanner->nextToken();  // consume the identifier
         return node;

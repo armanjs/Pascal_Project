@@ -20,6 +20,10 @@ namespace intermediate {
         map<string, SymtabEntry *> contents;
 
     public:
+        /**
+         * Make an entry.
+         * @param name the entry's name.
+         */
         SymtabEntry *enter(string name)
         {
             SymtabEntry *entry = new SymtabEntry(name);
@@ -28,6 +32,11 @@ namespace intermediate {
             return entry;
         }
 
+        /**
+         * Look up an entry.
+         * @param name the entry's name.
+         * @return the entry or null if it's not in the symbol table.
+         */
         SymtabEntry *lookup(string name)
         {
             return contents.find(name) != contents.end() ? contents[name]

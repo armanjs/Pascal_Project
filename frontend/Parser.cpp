@@ -175,6 +175,8 @@ namespace frontend {
                     currentToken = scanner->nextToken();  // consume ;
                 }
             }
+            // Did we see the start of the next statement without
+            // having seen a semicolon?
             else if (statementStarters.find(currentToken->type) !=
                      statementStarters.end())
             {

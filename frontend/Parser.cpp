@@ -231,9 +231,15 @@ namespace frontend {
         Node *loopNode = new Node(LOOP);
         // create a TEST node
         Node *testNode = new Node(TEST);
+        // create a NOT node
+        Node *notNode = new Node(NOT_NODE);
 
+        // look at parse tree
         loopNode->adopt(testNode);
+        testNode->adopt(notNode);
+
         currentToken = scanner->nextToken();  // consume WHILE
+        testNode->adopt(parseExpression());
 
         if (currentToken->type != DO){
             syntaxError("Expecting DO");

@@ -25,7 +25,7 @@ namespace intermediate {
     static const string NODE_TYPE_STRINGS[] =
             {
                     "PROGRAM", "COMPOUND", "ASSIGN", "LOOP", "TEST", "WRITE", "WRITELN",
-                    "ADD", "SUBTRACT", "MULTIPLY", "DIVIDE", "EQ", "LT",
+                    "ADD", "SUBTRACT", "MULTIPLY", "DIVIDE", "EQ", "LT", "NOT_NODE",
                     "VARIABLE", "INTEGER_CONSTANT", "REAL_CONSTANT", "STRING_CONSTANT"
             };
 

@@ -31,6 +31,11 @@ namespace frontend {
         statementStarters.insert(BEGIN);
         statementStarters.insert(IDENTIFIER);
         statementStarters.insert(REPEAT);
+        statementStarters.insert(WHILE); // while added
+        statementStarters.insert(FOR); // for added
+        statementStarters.insert(IF); // if added
+        statementStarters.insert(CASE); // case added
+        statementStarters.insert(ELSE); // else should be added
         statementStarters.insert(TokenType::WRITE);
         statementStarters.insert(TokenType::WRITELN);
 
@@ -42,12 +47,17 @@ namespace frontend {
 
         relationalOperators.insert(EQUALS);
         relationalOperators.insert(LESS_THAN);
+        relationalOperators.insert(GREATER_THAN); // > added
+        relationalOperators.insert(LESS_THAN_EQUALS); // <= added
+        relationalOperators.insert(GREATER_THAN_EQUALS); // >= added
+        relationalOperators.insert(NOT_EQUALS); // <> added
 
         simpleExpressionOperators.insert(PLUS);
         simpleExpressionOperators.insert(MINUS);
 
         termOperators.insert(STAR);
         termOperators.insert(SLASH);
+        termOperators.insert(DIV); // div added
     }
 
     Node *Parser::parseProgram()

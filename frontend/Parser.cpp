@@ -1,7 +1,7 @@
 //
 // Created by Arman Sadeghi on 2/12/22.
 //
-
+// branch test
 /**
  * Parser class for a simple interpreter.
  *
@@ -31,6 +31,11 @@ namespace frontend {
         statementStarters.insert(BEGIN);
         statementStarters.insert(IDENTIFIER);
         statementStarters.insert(REPEAT);
+        statementStarters.insert(WHILE); // while added
+        statementStarters.insert(FOR); // for added
+        statementStarters.insert(IF); // if added
+        statementStarters.insert(CASE); // case added
+        statementStarters.insert(ELSE); // else should be added
         statementStarters.insert(TokenType::WRITE);
         statementStarters.insert(TokenType::WRITELN);
 
@@ -42,12 +47,17 @@ namespace frontend {
 
         relationalOperators.insert(EQUALS);
         relationalOperators.insert(LESS_THAN);
+        relationalOperators.insert(GREATER_THAN); // > added
+        relationalOperators.insert(LESS_THAN_EQUALS); // <= added
+        relationalOperators.insert(GREATER_THAN_EQUALS); // >= added
+        relationalOperators.insert(NOT_EQUALS); // <> added
 
         simpleExpressionOperators.insert(PLUS);
         simpleExpressionOperators.insert(MINUS);
 
         termOperators.insert(STAR);
         termOperators.insert(SLASH);
+        termOperators.insert(DIV); // div added
     }
 
     Node *Parser::parseProgram()
@@ -98,6 +108,7 @@ namespace frontend {
             case IDENTIFIER : stmtNode = parseAssignmentStatement(); break;
             case BEGIN :      stmtNode = parseCompoundStatement();   break;
             case REPEAT :     stmtNode = parseRepeatStatement();     break;
+            case WHILE :      stmtNode = parseWhileStatement();      break; // while added
             case WRITE :      stmtNode = parseWriteStatement();      break;
             case WRITELN :    stmtNode = parseWritelnStatement();    break;
             case SEMICOLON :  stmtNode = nullptr; break;  // empty statement
@@ -175,6 +186,8 @@ namespace frontend {
                     currentToken = scanner->nextToken();  // consume ;
                 }
             }
+            // Did we see the start of the next statement without
+            // having seen a semicolon?
             else if (statementStarters.find(currentToken->type) !=
                      statementStarters.end())
             {
@@ -207,6 +220,26 @@ namespace frontend {
             loopNode->adopt(testNode);
         }
         else syntaxError("Expecting UNTIL");
+
+        return loopNode;
+    }
+
+    Node *Parser::parseWhileStatement() {
+        // the current token should now be WHILE
+
+        // create a LOOP node
+        Node *loopNode = new Node(LOOP);
+        // create a TEST node
+        Node *testNode = new Node(TEST);
+
+        loopNode->adopt(testNode);
+        currentToken = scanner->nextToken();  // consume WHILE
+
+        if (currentToken->type != DO){
+            syntaxError("Expecting DO");
+        }
+        currentToken = scanner->nextToken();
+        loopNode->adopt(parseStatement());
 
         return loopNode;
     }

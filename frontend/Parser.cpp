@@ -108,6 +108,7 @@ namespace frontend {
             case IDENTIFIER : stmtNode = parseAssignmentStatement(); break;
             case BEGIN :      stmtNode = parseCompoundStatement();   break;
             case REPEAT :     stmtNode = parseRepeatStatement();     break;
+            case WHILE :      stmtNode = parseWhileStatement();      break; // while added
             case WRITE :      stmtNode = parseWriteStatement();      break;
             case WRITELN :    stmtNode = parseWritelnStatement();    break;
             case SEMICOLON :  stmtNode = nullptr; break;  // empty statement
@@ -219,6 +220,26 @@ namespace frontend {
             loopNode->adopt(testNode);
         }
         else syntaxError("Expecting UNTIL");
+
+        return loopNode;
+    }
+
+    Node *Parser::parseWhileStatement() {
+        // the current token should now be WHILE
+
+        // create a LOOP node
+        Node *loopNode = new Node(LOOP);
+        // create a TEST node
+        Node *testNode = new Node(TEST);
+
+        loopNode->adopt(testNode);
+        currentToken = scanner->nextToken();  // consume WHILE
+
+        if (currentToken->type != DO){
+            syntaxError("Expecting DO");
+        }
+        currentToken = scanner->nextToken();
+        loopNode->adopt(parseStatement());
 
         return loopNode;
     }

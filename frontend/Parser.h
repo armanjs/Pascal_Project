@@ -61,6 +61,10 @@ namespace frontend {
         Node *parseIntegerConstant();
         Node *parseRealConstant();
         Node *parseStringConstant();
+        Node *parseWhileStatement();// while added
+        Node *parseForStatement(); // for added
+        Node *parseIfStatement(); // if added
+        Node *parseCaseStatement(); // case added
 
         void parseStatementList(Node *parentNode, TokenType terminalType);
         void parseWriteArguments(Node *node);

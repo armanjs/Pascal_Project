@@ -352,6 +352,7 @@ namespace frontend {
             TokenType tokenType = currentToken->type;
             Node *opNode = tokenType == EQUALS    ? new Node(EQ)
                                                   : tokenType == LESS_THAN ? new Node(LT)
+                                                  : tokenType == LESS_THAN_EQUALS ? new Node(LE)
                                                                            :                          nullptr;
 
             currentToken = scanner->nextToken();  // consume relational operator

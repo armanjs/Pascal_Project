@@ -36,6 +36,7 @@ namespace backend {
 
         relationals.insert(EQ);
         relationals.insert(LT);
+        relationals.insert(LE);
     }
 
     Object Executor::visit(Node *node)
@@ -206,6 +207,7 @@ namespace backend {
             {
                 case EQ : value = value1 == value2; break;
                 case LT : value = value1 <  value2; break;
+                case LE : value = value1 <= value2; break;
 
                 default : break;
             }

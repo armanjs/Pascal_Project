@@ -35,7 +35,11 @@ namespace backend {
         singletons.insert(STRING_CONSTANT);
 
         relationals.insert(EQ);
+        relationals.insert(NE);
         relationals.insert(LT);
+        relationals.insert(GT);
+        relationals.insert(LE);
+        relationals.insert(GE);
     }
 
     Object Executor::visit(Node *node)
@@ -205,7 +209,11 @@ namespace backend {
             switch (expressionNode->type)
             {
                 case EQ : value = value1 == value2; break;
+                case NE : value = value1 != value2; break;
                 case LT : value = value1 <  value2; break;
+                case GT : value = value1 >  value2; break;
+                case LE : value = value1 <=  value2; break;
+                case GE : value = value1 >=  value2; break;
 
                 default : break;
             }

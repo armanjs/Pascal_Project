@@ -18,14 +18,15 @@ namespace intermediate {
     enum class NodeType
     {
         PROGRAM, COMPOUND, ASSIGN, LOOP, TEST, WRITE, WRITELN,
-        ADD, SUBTRACT, MULTIPLY, DIVIDE, EQ, LT, LE,  GT, NOT_NODE,
+        ADD, SUBTRACT, MULTIPLY, DIVIDE, EQ, NE, LT, GT, LE, GE, NOT_NODE,
         VARIABLE, INTEGER_CONSTANT, REAL_CONSTANT, STRING_CONSTANT
     };
 
     static const string NODE_TYPE_STRINGS[] =
             {
                     "PROGRAM", "COMPOUND", "ASSIGN", "LOOP", "TEST", "WRITE", "WRITELN",
-                    "ADD", "SUBTRACT", "MULTIPLY", "DIVIDE", "EQ", "LT","LE", "GT", "NOT_NODE",
+                    "ADD", "SUBTRACT", "MULTIPLY", "DIVIDE", "EQ",
+                    "NE", "LT", "GT", "LE", "GE", "NOT_NODE",
                     "VARIABLE", "INTEGER_CONSTANT", "REAL_CONSTANT", "STRING_CONSTANT"
             };
 
@@ -41,9 +42,11 @@ namespace intermediate {
     constexpr NodeType MULTIPLY         = NodeType::MULTIPLY;
     constexpr NodeType DIVIDE           = NodeType::DIVIDE;
     constexpr NodeType EQ               = NodeType::EQ;
+    constexpr NodeType NE               = NodeType::NE; // Not Equal added
     constexpr NodeType LT               = NodeType::LT;
-    constexpr NodeType LE               = NodeType::LE;
-    constexpr NodeType GT               = NodeType::GT; // GT added
+    constexpr NodeType GT               = NodeType::GT; // Greater Than added
+    constexpr NodeType LE               = NodeType::LE; // Less or Equal added
+    constexpr NodeType GE               = NodeType::GE; // Greater or Equal added
     constexpr NodeType NOT_NODE         = NodeType::NOT_NODE; // NOT added
     constexpr NodeType VARIABLE         = NodeType::VARIABLE;
     constexpr NodeType INTEGER_CONSTANT = NodeType::INTEGER_CONSTANT;

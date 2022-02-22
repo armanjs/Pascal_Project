@@ -109,6 +109,7 @@ namespace frontend {
             case BEGIN :      stmtNode = parseCompoundStatement();   break;
             case REPEAT :     stmtNode = parseRepeatStatement();     break;
             case WHILE :      stmtNode = parseWhileStatement();      break; // while added
+            case FOR :        stmtNode = parseForStatement();        break; // for added
             case WRITE :      stmtNode = parseWriteStatement();      break;
             case WRITELN :    stmtNode = parseWritelnStatement();    break;
             case SEMICOLON :  stmtNode = nullptr; break;  // empty statement
@@ -239,7 +240,7 @@ namespace frontend {
         testNode->adopt(notNode);
 
         currentToken = scanner->nextToken();  // consume WHILE
-        testNode->adopt(parseExpression());
+        notNode->adopt(parseExpression());
 
         if (currentToken->type != DO){
             syntaxError("Expecting DO");
@@ -248,6 +249,46 @@ namespace frontend {
         loopNode->adopt(parseStatement());
 
         return loopNode;
+    }
+
+    Node *Parser::parseForStatement() {
+        // current token should be at FOR
+
+        // create a COMPOUND node
+        Node *compoundNode = new Node(COMPOUND);
+        // create a LOOP node
+        Node *loopNode = new Node(LOOP);
+        // create a TEST node
+        Node *testNode = new Node(TEST);
+        // create a operator node to check for TO or DOWNTO
+        Node *relationalNode;
+        // create an Integer constant node
+        Node *integerConstant = new Node(INTEGER_CONSTANT);
+        // create an ASSIGN node
+        Node *assign1 = new Node(ASSIGN);
+
+        currentToken = scanner->nextToken(); // consume FOR
+        compoundNode->adopt(parseAssignmentStatement()); // e.g. k := j
+        compoundNode->adopt(loopNode);
+        loopNode->adopt(testNode);
+
+        if (currentToken->type == TO){
+            relationalNode = new Node(GT);
+            testNode->adopt(relationalNode);
+        }
+        else {
+            relationalNode = new Node(LT);
+            testNode->adopt(relationalNode);
+        }
+        currentToken = scanner->nextToken(); // consume TO/DOWNTO
+        // now we should be at the Integer constant
+        // first find the k variable
+        // COMPOUND's left child is ASSIGN
+        // ASSIGN's left child is k
+        printf("%s", compoundNode->children[0]->text.c_str());
+        relationalNode->adopt(compoundNode->children[0]->children[0]);
+        relationalNode->adopt(parseIntegerConstant());
+        return compoundNode;
     }
 
     Node *Parser::parseWriteStatement()

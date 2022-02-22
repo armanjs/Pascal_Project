@@ -291,6 +291,23 @@ namespace frontend {
         return compoundNode;
     }
 
+    Node *Parser::parseCaseStatement() {
+        // the current token should be CASE
+
+        // create SELECT node
+        Node *selectNode = new Node(SELECT);
+        // create ADD node
+        Node *addNode = new Node(ADD);
+
+        currentToken = scanner->nextToken(); // consume CASE
+        selectNode->adopt(parseExpression());
+
+        if (currentToken->type == OF){
+
+        } else syntaxError("Expecting OF");
+        return selectNode;
+    }
+
     Node *Parser::parseWriteStatement()
     {
         // The current token should now be WRITE.

@@ -18,7 +18,8 @@ namespace intermediate {
     enum class NodeType
     {
         PROGRAM, COMPOUND, ASSIGN, LOOP, TEST, WRITE, WRITELN,
-        ADD, SUBTRACT, MULTIPLY, DIVIDE, EQ, NE, LT, GT, LE, GE, NOT_NODE,
+        ADD, SUBTRACT, MULTIPLY, DIVIDE, EQ,
+        NE, LT, GT, LE, GE, NOT_NODE, SELECT,
         VARIABLE, INTEGER_CONSTANT, REAL_CONSTANT, STRING_CONSTANT
     };
 
@@ -26,7 +27,7 @@ namespace intermediate {
             {
                     "PROGRAM", "COMPOUND", "ASSIGN", "LOOP", "TEST", "WRITE", "WRITELN",
                     "ADD", "SUBTRACT", "MULTIPLY", "DIVIDE", "EQ",
-                    "NE", "LT", "GT", "LE", "GE", "NOT_NODE",
+                    "NE", "LT", "GT", "LE", "GE", "NOT_NODE", "SELECT",
                     "VARIABLE", "INTEGER_CONSTANT", "REAL_CONSTANT", "STRING_CONSTANT"
             };
 
@@ -48,6 +49,7 @@ namespace intermediate {
     constexpr NodeType LE               = NodeType::LE; // Less or Equal added
     constexpr NodeType GE               = NodeType::GE; // Greater or Equal added
     constexpr NodeType NOT_NODE         = NodeType::NOT_NODE; // NOT added
+    constexpr NodeType SELECT           = NodeType::SELECT;
     constexpr NodeType VARIABLE         = NodeType::VARIABLE;
     constexpr NodeType INTEGER_CONSTANT = NodeType::INTEGER_CONSTANT;
     constexpr NodeType REAL_CONSTANT    = NodeType::REAL_CONSTANT;

@@ -1,6 +1,3 @@
-//
-// Created by Arman Sadeghi on 2/16/22.
-//
 
 /**
  * An object class for a simple interpreter.
@@ -13,8 +10,10 @@
 
 #ifndef PASCALPROJECT_OBJECT_H
 #define PASCALPROJECT_OBJECT_H
+
 #include <string>
 #include <algorithm>
+
 using namespace std;
 
 class Object

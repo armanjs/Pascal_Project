@@ -1,6 +1,3 @@
-//
-// Created by Arman Sadeghi on 2/16/22.
-//
 
 /**
  * A simple interpreter to demonstrate scanning, parsing, symbol tables,
@@ -12,6 +9,7 @@
  */
 
 #include <string>
+
 #include "frontend/Source.h"
 #include "frontend/Scanner.h"
 #include "frontend/Parser.h"
@@ -77,7 +75,7 @@ void testScanner(Source *source)
          token->type != END_OF_FILE;
          token = scanner->nextToken())
     {
-        printf("%12s : %s\n",
+        printf("%14s : %s\n",
                TOKEN_TYPE_STRINGS[(int) token->type].c_str(),
                token->text.c_str());
     }
@@ -119,7 +117,7 @@ void executeProgram(Parser *parser, Symtab *symtab)
 
     if (errorCount == 0)
     {
-        Executor *executor = new Executor(symtab);
+        Executor *executor = new Executor();
         executor->visit(programNode);
     }
     else

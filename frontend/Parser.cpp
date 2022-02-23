@@ -106,6 +106,7 @@ namespace frontend {
             case BEGIN :      stmtNode = parseCompoundStatement();   break;
             case REPEAT :     stmtNode = parseRepeatStatement();     break;
             case WHILE :      stmtNode = parseWhileStatement();      break; // while added
+            case IF:          stmtNode = parseIfStatement();         break; // IF added
             case WRITE :      stmtNode = parseWriteStatement();      break;
             case WRITELN :    stmtNode = parseWritelnStatement();    break;
             case SEMICOLON :  stmtNode = nullptr; break;  // empty statement
@@ -255,6 +256,43 @@ namespace frontend {
     return loopNode;
 }
 
+
+//IF statement parsing
+Node *Parser::parseIfStatement(){
+    //creating IFnode
+     Node *IFNode = new Node(NodeType::IF);    //doing nodetype::IF because otherwise it will link the tokentype::IF by default
+    currentToken = scanner->nextToken();  // consume IF
+
+    // The IFnode adopts the expression subtree.
+    IFNode->adopt(parseExpression());
+
+    //here the expression gets parsed, the next step is to verify THEN
+  if (currentToken->type == THEN) {
+    currentToken = scanner->nextToken();  // consume THEN
+    }
+    else{
+         syntaxError("Expecting THEN");  //-_- Error
+    }
+
+    //For THEN subtree, lets consider it as normal statement tree
+    IFNode->adopt(parseStatement());
+
+    //lets check for ELSE keyword, if there is 'ELSE' , we will let IFnode adopt it as its third child (ref. class4 slide #23)
+
+    if (currentToken->type == ELSE) {
+    currentToken = scanner->nextToken();  // consume ELSE
+    IFNode->adopt(parseStatement()); //again process ELSE subtree (like THEN subtree)
+    }
+
+    //Note:IF there is no ELSE, its not a syntax error (unlikeTHEN subtree)
+    
+    return IFNode;
+} 
+
+
+
+
+
     Node *Parser::parseWriteStatement()
     {
         // The current token should now be WRITE.
@@ -359,9 +397,9 @@ namespace frontend {
                                                   : tokenType == LESS_THAN ? new Node(LT)
                                                                            :  tokenType == LESS_THAN_EQUALS? new Node(LE)
                                                                                                             :    tokenType == GREATER_THAN? new Node(GT) 
-                                                                                                                      :    tokenType == GREATER_THAN_EQUALS? new Node(GE) 
-                                                                                                                                :    tokenType == NOT_EQUALS? new Node(NE) 
-                                                                                                                                            :        nullptr;
+                                                                                                                                            :    tokenType == GREATER_THAN_EQUALS? new Node(GE) 
+                                                                                                                                                                                :    tokenType == NOT_EQUALS? new Node(NE) 
+                                                                                                                                                                                                            :        nullptr;
 
             currentToken = scanner->nextToken();  // consume relational operator
 
@@ -392,7 +430,9 @@ namespace frontend {
                simpleExpressionOperators.end())
         {
             Node *opNode = currentToken->type == PLUS ? new Node(ADD)
-                                                      : new Node(SUBTRACT);
+                           :currentToken->type == MINUS? new Node(SUBTRACT)
+                           :currentToken->type == OR? new Node(NodeType::OR)
+                           : nullptr;
 
             currentToken = scanner->nextToken();  // consume the operator
 
@@ -412,14 +452,32 @@ namespace frontend {
         // The current token should now be an identifier or a number.
 
         // The term's root node->
-        Node *termNode = parseFactor();
+        Node *termNode = nullptr;
+
+        if (currentToken->type == PLUS)
+            {
+            currentToken = scanner->nextToken();  // consume plus
+            termNode = parseFactor();
+            }
+
+        else if (currentToken->type == MINUS)
+            {
+            currentToken = scanner->nextToken();  // consume minus
+            termNode = new Node(NEGATE);
+            termNode->adopt(parseFactor());
+            }
+
+        else termNode = parseFactor();
 
         // Keep parsing more factors as long as the current token
         // is a * or / operator.
         while (termOperators.find(currentToken->type) != termOperators.end())
         {
             Node *opNode = currentToken->type == STAR ? new Node(MULTIPLY)
-                                                      : new Node(DIVIDE);
+                            : currentToken->type == SLASH ? new Node(DIVIDE)
+                            :currentToken->type == DIV ? new Node(DIV_INTEGER)
+                            :currentToken->type == AND ? new Node(NodeType::AND)
+                            : nullptr;
 
             currentToken = scanner->nextToken();  // consume the operator
 
@@ -454,6 +512,14 @@ namespace frontend {
             else syntaxError("Expecting )");
 
             return exprNode;
+        }
+         else if (currentToken->type == TokenType::NOT){       
+        currentToken = scanner->nextToken();  // consume NOT
+        Node *notNode = new Node(NodeType::NOT);
+        
+
+        notNode->adopt(parseFactor());
+        return notNode;
         }
 
         else syntaxError("Unexpected token");

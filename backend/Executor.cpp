@@ -33,6 +33,8 @@ namespace backend {
         singletons.insert(INTEGER_CONSTANT);
         singletons.insert(REAL_CONSTANT);
         singletons.insert(STRING_CONSTANT);
+        singletons.insert(NOT_NODE);
+        singletons.insert(NEGATE);
 
         relationals.insert(EQ);
         relationals.insert(NE);
@@ -40,6 +42,8 @@ namespace backend {
         relationals.insert(GT);
         relationals.insert(LE);
         relationals.insert(GE);
+        relationals.insert(AND);
+        relationals.insert(OR);
     }
 
     Object Executor::visit(Node *node)
@@ -192,7 +196,16 @@ namespace backend {
                 case INTEGER_CONSTANT : return visitIntegerConstant(expressionNode);
                 case REAL_CONSTANT    : return visitRealConstant(expressionNode);
                 case STRING_CONSTANT  : return visitStringConstant(expressionNode);
-
+                case NOT_NODE :
+                {
+                bool b = visit(expressionNode->children[0]).B;
+                return !b;
+                }
+                case NEGATE :
+                {
+                double value = visit(expressionNode->children[0]).D;
+                return -value;
+                }
                 default: return Object();
             }
         }
@@ -214,6 +227,8 @@ namespace backend {
                 case GT : value = value1 >  value2; break;
                 case LE : value = value1 <=  value2; break;
                 case GE : value = value1 >=  value2; break;
+                case AND : value = value1 && value2; break;
+                case OR  : value = value1 || value2; break;
 
                 default : break;
             }

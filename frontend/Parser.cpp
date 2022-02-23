@@ -54,10 +54,12 @@ namespace frontend {
 
         simpleExpressionOperators.insert(PLUS);
         simpleExpressionOperators.insert(MINUS);
+        simpleExpressionOperators.insert(OR); // or added
 
         termOperators.insert(STAR);
         termOperators.insert(SLASH);
         termOperators.insert(DIV); // div added
+        termOperators.insert(TokenType::AND); // and added
     }
 
     Node *Parser::parseProgram()
@@ -110,6 +112,7 @@ namespace frontend {
             case REPEAT :     stmtNode = parseRepeatStatement();     break;
             case WHILE :      stmtNode = parseWhileStatement();      break; // while added
             case FOR :        stmtNode = parseForStatement();        break; // for added
+            case IF :         stmtNode = parseIfStatement();         break; // if added
             case WRITE :      stmtNode = parseWriteStatement();      break;
             case WRITELN :    stmtNode = parseWritelnStatement();    break;
             case SEMICOLON :  stmtNode = nullptr; break;  // empty statement
@@ -272,14 +275,18 @@ namespace frontend {
         compoundNode->adopt(loopNode);
         loopNode->adopt(testNode);
 
+        bool countTO = true;
         if (currentToken->type == TO){
             relationalNode = new Node(GT);
             testNode->adopt(relationalNode);
         }
-        else {
+        else if (currentToken->type == DOWNTO){
             relationalNode = new Node(LT);
             testNode->adopt(relationalNode);
+            countTO = false;
         }
+        else syntaxError("Expecting TO or DOWNTO");
+
         currentToken = scanner->nextToken(); // consume TO/DOWNTO
         // now we should be at the Integer constant
         // first find the k variable
@@ -290,6 +297,37 @@ namespace frontend {
         relationalNode->adopt(parseIntegerConstant());
         return compoundNode;
     }
+
+    Node *Parser::parseIfStatement()
+{
+    // The current token should now be IF.
+
+    // Create an IF node.
+    Node *ifNode = new Node(NodeType::IF);
+    currentToken = scanner->nextToken();  // consume IF
+
+    // The IF node adopts the expression subtree as its first child.
+    ifNode->adopt(parseExpression());
+
+    if (currentToken->type != THEN) syntaxError("Expecting THEN");
+    else
+    {
+        currentToken = scanner->nextToken();  // consume THEN
+    }
+
+    // The IF node adopts the THEN statement subtree as its second child.
+    ifNode->adopt(parseStatement());
+
+    // If there's an ELSE reserved word,
+    // the IF node adopts the ELSE statement subtree as its third child.
+    if (currentToken->type == ELSE)
+    {
+        currentToken = scanner->nextToken();  // consume ELSE
+        ifNode->adopt(parseStatement());
+    }
+
+    return ifNode;
+}
 
     Node *Parser::parseWriteStatement()
     {
@@ -394,7 +432,10 @@ namespace frontend {
             Node *opNode = tokenType == EQUALS    ? new Node(EQ)
                                                   : tokenType == LESS_THAN ? new Node(LT)
                                                   : tokenType == LESS_THAN_EQUALS ? new Node(LE)
-                                                                           :                          nullptr;
+                                                  : tokenType == GREATER_THAN? new Node(GT) 
+                                                  : tokenType == GREATER_THAN_EQUALS? new Node(GE) 
+                                                  : tokenType == NOT_EQUALS? new Node(NE)
+                                                  : nullptr;
 
             currentToken = scanner->nextToken();  // consume relational operator
 
@@ -487,6 +528,15 @@ namespace frontend {
             else syntaxError("Expecting )");
 
             return exprNode;
+        }
+
+        else if (currentToken->type == TokenType::NOT)
+        {
+        Node *notNode = new Node(NodeType::NOT_NODE);
+        currentToken = scanner->nextToken();  // consume NOT
+
+        notNode->adopt(parseFactor());
+        return notNode;
         }
 
         else syntaxError("Unexpected token");

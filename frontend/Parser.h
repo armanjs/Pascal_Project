@@ -71,6 +71,8 @@ namespace frontend {
 
         void syntaxError(string message);
         void semanticError(string message);
+
+        void parseConstantList(Node *parentNode);
     };
 
 }  // namespace frontend

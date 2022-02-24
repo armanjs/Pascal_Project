@@ -110,6 +110,7 @@ namespace frontend {
             case REPEAT :     stmtNode = parseRepeatStatement();     break;
             case WHILE :      stmtNode = parseWhileStatement();      break; // while added
             case FOR :        stmtNode = parseForStatement();        break; // for added
+            case CASE :       stmtNode = parseCaseStatement();       break;
             case WRITE :      stmtNode = parseWriteStatement();      break;
             case WRITELN :    stmtNode = parseWritelnStatement();    break;
             case SEMICOLON :  stmtNode = nullptr; break;  // empty statement
@@ -197,6 +198,17 @@ namespace frontend {
         }
     }
 
+    void Parser::parseConstantList(Node *parentNode){
+        // we should be at the number list e.g. 9,5,2:
+        while (currentToken->type != COLON){
+            // create an Integer constant node and adopt it
+            parentNode->adopt(parseIntegerConstant());
+            if (currentToken->type == COMMA){
+                currentToken = scanner->nextToken(); // consume comma
+            }
+        }
+    }
+
     Node *Parser::parseRepeatStatement()
     {
         // The current token should now be REPEAT.
@@ -245,7 +257,7 @@ namespace frontend {
         if (currentToken->type != DO){
             syntaxError("Expecting DO");
         }
-        currentToken = scanner->nextToken();
+        currentToken = scanner->nextToken(); // consume DO
         loopNode->adopt(parseStatement());
 
         return loopNode;
@@ -262,14 +274,17 @@ namespace frontend {
         Node *testNode = new Node(TEST);
         // create a operator node to check for TO or DOWNTO
         Node *relationalNode;
-        // create an Integer constant node
-        Node *integerConstant = new Node(INTEGER_CONSTANT);
-        // create an ASSIGN node
+        // create an ASSIGN node for the initial assign
         Node *assign1 = new Node(ASSIGN);
 
         currentToken = scanner->nextToken(); // consume FOR
-        compoundNode->adopt(parseAssignmentStatement()); // e.g. k := j
-        compoundNode->adopt(loopNode);
+        //compoundNode->adopt(parseAssignmentStatement()); // e.g. k := j
+        assign1->adopt(parseAssignmentStatement());
+        lineNumber = currentToken->lineNumber;
+        assign1->lineNumber = lineNumber;
+
+        compoundNode->adopt(assign1); // left child of compound
+        compoundNode->adopt(loopNode); // right child of compound
         loopNode->adopt(testNode);
 
         if (currentToken->type == TO){
@@ -296,15 +311,29 @@ namespace frontend {
 
         // create SELECT node
         Node *selectNode = new Node(SELECT);
-        // create ADD node
-        Node *addNode = new Node(ADD);
+        // create BRANCH node
+        Node *branchNode = new Node(BRANCH);
+        // create a select branch
+        Node *selectBranchNode = new Node(SELECT_BRANCH);
+        // create a Integer constant node
+        Node *integerConstant = new Node(INTEGER_CONSTANT);
 
         currentToken = scanner->nextToken(); // consume CASE
-        selectNode->adopt(parseExpression());
+        selectNode->adopt(parseExpression()); // e.g. i+1
 
         if (currentToken->type == OF){
-
+            currentToken = scanner->nextToken(); // consume OF
         } else syntaxError("Expecting OF");
+
+        while (currentToken->type != END && currentToken->type != END_OF_FILE){
+            selectNode->adopt(branchNode);
+            branchNode->adopt(selectBranchNode);
+            parseConstantList(selectBranchNode);
+            if (currentToken->type == COLON){
+                currentToken = scanner->nextToken(); // consume :
+            }
+            selectBranchNode->adopt(parseStatement());
+        }
         return selectNode;
     }
 

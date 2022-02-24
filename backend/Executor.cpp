@@ -33,6 +33,7 @@ namespace backend {
         singletons.insert(INTEGER_CONSTANT);
         singletons.insert(REAL_CONSTANT);
         singletons.insert(STRING_CONSTANT);
+        singletons.insert(NOT_NODE); // not added
 
         relationals.insert(EQ);
         relationals.insert(NE);
@@ -192,6 +193,7 @@ namespace backend {
                 case INTEGER_CONSTANT : return visitIntegerConstant(expressionNode);
                 case REAL_CONSTANT    : return visitRealConstant(expressionNode);
                 case STRING_CONSTANT  : return visitStringConstant(expressionNode);
+                case NOT_NODE         : return visitNotNode(expressionNode);
 
                 default: return Object();
             }
@@ -277,6 +279,12 @@ namespace backend {
         printf("RUNTIME ERROR at line %d: %s: %s\n",
                lineNumber, message.c_str(), node->text.c_str());
         exit(-2);
+    }
+
+    Object Executor::visitNotNode(Node *NotNode) {
+        Node *notNodeChild = NotNode->children[0];
+        Object result = visitExpression(notNodeChild).B;
+        return !result.B;
     }
 
 }  // namespace backend

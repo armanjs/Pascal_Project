@@ -59,8 +59,11 @@ namespace backend {
         Object visitRealConstant(Node *realConstantNode);
         Object visitStringConstant(Node *stringConstantNode);
 
+        Object visitNotNode(Node *NotNode);
+
         void printValue(vector<Node *> children);
         void runtimeError(Node *node, string message);
+
     };
 
 }  // namespace backend

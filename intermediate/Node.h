@@ -19,7 +19,7 @@ namespace intermediate {
     {
         PROGRAM, COMPOUND, ASSIGN, LOOP, TEST, WRITE, WRITELN,
         ADD, SUBTRACT, MULTIPLY, DIVIDE, EQ,
-        NE, LT, GT, LE, GE, NOT_NODE, SELECT,
+        NE, LT, GT, LE, GE, NOT_NODE, SELECT, SELECT_BRANCH, BRANCH,
         VARIABLE, INTEGER_CONSTANT, REAL_CONSTANT, STRING_CONSTANT
     };
 
@@ -27,7 +27,7 @@ namespace intermediate {
             {
                     "PROGRAM", "COMPOUND", "ASSIGN", "LOOP", "TEST", "WRITE", "WRITELN",
                     "ADD", "SUBTRACT", "MULTIPLY", "DIVIDE", "EQ",
-                    "NE", "LT", "GT", "LE", "GE", "NOT_NODE", "SELECT",
+                    "NE", "LT", "GT", "LE", "GE", "NOT_NODE", "SELECT", "BRANCH", "SELECT_BRANCH",
                     "VARIABLE", "INTEGER_CONSTANT", "REAL_CONSTANT", "STRING_CONSTANT"
             };
 
@@ -50,6 +50,8 @@ namespace intermediate {
     constexpr NodeType GE               = NodeType::GE; // Greater or Equal added
     constexpr NodeType NOT_NODE         = NodeType::NOT_NODE; // NOT added
     constexpr NodeType SELECT           = NodeType::SELECT;
+    constexpr NodeType BRANCH           = NodeType::BRANCH;
+    constexpr NodeType SELECT_BRANCH    = NodeType::SELECT_BRANCH;
     constexpr NodeType VARIABLE         = NodeType::VARIABLE;
     constexpr NodeType INTEGER_CONSTANT = NodeType::INTEGER_CONSTANT;
     constexpr NodeType REAL_CONSTANT    = NodeType::REAL_CONSTANT;

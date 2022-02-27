@@ -30,7 +30,7 @@ namespace frontend {
         statementStarters.insert(REPEAT);
         statementStarters.insert(WHILE); // while added
         statementStarters.insert(FOR); // for added
-        statementStarters.insert(IF); // if added
+        statementStarters.insert(TokenType::IF); // if added
         statementStarters.insert(CASE); // case added
         statementStarters.insert(ELSE); // else should be added
         statementStarters.insert(TokenType::WRITE);
@@ -51,10 +51,13 @@ namespace frontend {
 
         simpleExpressionOperators.insert(PLUS);
         simpleExpressionOperators.insert(MINUS);
+        simpleExpressionOperators.insert(OR);
 
         termOperators.insert(STAR);
         termOperators.insert(SLASH);
         termOperators.insert(DIV); // div added
+        termOperators.insert(MOD); //added
+        termOperators.insert(TokenType::AND);//added
     }
 
     Node *Parser::parseProgram()
@@ -233,13 +236,13 @@ namespace frontend {
     // Create a TEST node and a NOT node.
     // The LOOP node adopts the TEST node.
     // The TEST node adopts the NOT node.
-    Node *testNode = new Node(TEST);
+   /* Node *testNode = new Node(TEST);
     Node *notNode  = new Node(NodeType::NOT);
     loopNode->adopt(testNode);
-    testNode->adopt(notNode);
+    testNode->adopt(notNode);*/
 
     // The NOT node adopts the expression subtree.
-    notNode->adopt(parseExpression());
+loopNode->adopt(parseExpression());
 
     // The current token should now be DO.
     

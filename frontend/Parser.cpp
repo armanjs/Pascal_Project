@@ -272,22 +272,21 @@ namespace frontend {
 
         // create a COMPOUND node
         Node *compoundNode = new Node(COMPOUND);
+        currentToken = scanner->nextToken(); // consume FOR
+        // create an ASSIGN node
+        Node *assignNode = new Node(ASSIGN);
         // create a LOOP node
         Node *loopNode = new Node(LOOP);
         // create a TEST node
         Node *testNode = new Node(TEST);
         // create a operator node to check for TO or DOWNTO
         Node *relationalNode;
-        // create an ASSIGN node for the initial assign
-        Node *assign1 = new Node(ASSIGN);
-
-        currentToken = scanner->nextToken(); // consume FOR
         //compoundNode->adopt(parseAssignmentStatement()); // e.g. k := j
-        assign1->adopt(parseAssignmentStatement());
+        assignNode->adopt(parseAssignmentStatement());
         lineNumber = currentToken->lineNumber;
-        assign1->lineNumber = lineNumber;
+        assignNode->lineNumber = lineNumber;
 
-        compoundNode->adopt(assign1); // left child of compound
+        compoundNode->adopt(assignNode); // left child of compound
         compoundNode->adopt(loopNode); // right child of compound
         loopNode->adopt(testNode);
 

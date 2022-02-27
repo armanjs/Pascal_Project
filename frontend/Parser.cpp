@@ -300,7 +300,7 @@ namespace frontend {
 
     Node *Parser::parseIfStatement()
 {
-    // The current token should now be IF.
+    // current token should now be IF.
 
     // Create an IF node.
     Node *ifNode = new Node(NodeType::IF);

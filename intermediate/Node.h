@@ -48,7 +48,7 @@ namespace intermediate {
     constexpr NodeType LE               = NodeType::LE; // Less or Equal added
     constexpr NodeType GE               = NodeType::GE; // Greater or Equal added
     constexpr NodeType NOT_NODE         = NodeType::NOT_NODE; // NOT added
-    constexpr NodeType NEGATE           = NodeType::NEGATE; // NOT added
+    constexpr NodeType NEGATE           = NodeType::NEGATE; // NEGATE added
     constexpr NodeType AND              = NodeType::AND; // AND added
     constexpr NodeType OR               = NodeType::OR; // OR added
     constexpr NodeType IF               = NodeType::IF; // IF added

@@ -50,6 +50,8 @@ namespace backend {
         Object visitCompound(Node *compoundNode);
         Object visitAssign(Node *assignNode);
         Object visitLoop(Node *loopNode);
+        Object visitIf(Node *ifNode);
+        Object visitSwitch(Node *switchNode);
         Object visitTest(Node *testNode);
         Object visitWrite(Node *writeNode);
         Object visitWriteln(Node *writelnNode);
@@ -60,6 +62,7 @@ namespace backend {
         Object visitStringConstant(Node *stringConstantNode);
 
         Object visitNotNode(Node *NotNode);
+        Object visitNegateNode(Node *NegateNode);
 
         void printValue(vector<Node *> children);
         void runtimeError(Node *node, string message);

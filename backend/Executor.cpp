@@ -33,6 +33,7 @@ namespace backend {
         singletons.insert(INTEGER_CONSTANT);
         singletons.insert(REAL_CONSTANT);
         singletons.insert(STRING_CONSTANT);
+        singletons.insert(NEGATE); // negate added
         singletons.insert(NOT); // not added
 
         relationals.insert(EQ);
@@ -41,6 +42,8 @@ namespace backend {
         relationals.insert(GT);
         relationals.insert(LE);
         relationals.insert(GE);
+        relationals.insert(AND);
+        relationals.insert(OR);
     }
 
     Object Executor::visit(Node *node)
@@ -52,6 +55,8 @@ namespace backend {
             case COMPOUND :
             case ASSIGN :
             case LOOP :
+            case IF:
+            case SWITCH:
             case WRITE :
             case WRITELN :  return visitStatement(node);
 
@@ -76,6 +81,8 @@ namespace backend {
             case COMPOUND :  return visitCompound(statementNode);
             case ASSIGN :    return visitAssign(statementNode);
             case LOOP :      return visitLoop(statementNode);
+            case IF :        return visitIf(statementNode); // if added
+            case SWITCH :    return visitSwitch(statementNode); // switch added
             case WRITE :     return visitWrite(statementNode);
             case WRITELN :   return visitWriteln(statementNode);
 
@@ -127,6 +134,14 @@ namespace backend {
     Object Executor::visitTest(Node *testNode)
     {
         return visit(testNode->children[0]);
+    }
+
+    Object Executor::visitIf(Node *ifNode) {
+
+    }
+
+    Object Executor::visitSwitch(Node *switchNode) {
+
     }
 
     Object Executor::visitWrite(Node *writeNode)
@@ -193,7 +208,8 @@ namespace backend {
                 case INTEGER_CONSTANT : return visitIntegerConstant(expressionNode);
                 case REAL_CONSTANT    : return visitRealConstant(expressionNode);
                 case STRING_CONSTANT  : return visitStringConstant(expressionNode);
-                case NOT         : return visitNotNode(expressionNode);
+                case NOT              : return visitNotNode(expressionNode); // not added
+                case NEGATE           : return visitNegateNode(expressionNode); // negate added
 
                 default: return Object();
             }
@@ -282,9 +298,17 @@ namespace backend {
     }
 
     Object Executor::visitNotNode(Node *NotNode) {
-        Node *notNodeChild = NotNode->children[0];
-        Object result = visitExpression(notNodeChild).B;
-        return !result.B;
+//        Node *notNodeChild = NotNode->children[0];
+//        Object result = visitExpression(notNodeChild).B;
+//        return !result.B;
+//        easier way to implement
+        bool boolean = visit(NotNode->children[0]).B;
+        return !boolean;
+    }
+
+    Object Executor::visitNegateNode(Node *NegateNode) {
+        double value = visit(NegateNode->children[0]).D;
+        return -value;
     }
 
 }  // namespace backend

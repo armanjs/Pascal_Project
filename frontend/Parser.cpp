@@ -33,9 +33,9 @@ namespace frontend {
         statementStarters.insert(REPEAT);
         statementStarters.insert(WHILE); // while added
         statementStarters.insert(FOR); // for added
-        statementStarters.insert(IF); // if added
+        statementStarters.insert(TokenType::IF); // if added
         statementStarters.insert(CASE); // case added
-        statementStarters.insert(ELSE); // else should be added
+        //statementStarters.insert(ELSE); // else should be added
         statementStarters.insert(TokenType::WRITE);
         statementStarters.insert(TokenType::WRITELN);
 
@@ -54,10 +54,13 @@ namespace frontend {
 
         simpleExpressionOperators.insert(PLUS);
         simpleExpressionOperators.insert(MINUS);
+        simpleExpressionOperators.insert(OR);
 
         termOperators.insert(STAR);
         termOperators.insert(SLASH);
         termOperators.insert(DIV); // div added
+        termOperators.insert(MOD); // mod added
+        termOperators.insert(TokenType::AND); // and added
     }
 
     Node *Parser::parseProgram()
@@ -110,7 +113,8 @@ namespace frontend {
             case REPEAT :     stmtNode = parseRepeatStatement();     break;
             case WHILE :      stmtNode = parseWhileStatement();      break; // while added
             case FOR :        stmtNode = parseForStatement();        break; // for added
-            case CASE :       stmtNode = parseCaseStatement();       break;
+            //case IF :         stmtNode = parseIfStatement();         break; // if added
+            case CASE :       stmtNode = parseCaseStatement();       break; // case added
             case WRITE :      stmtNode = parseWriteStatement();      break;
             case WRITELN :    stmtNode = parseWritelnStatement();    break;
             case SEMICOLON :  stmtNode = nullptr; break;  // empty statement
@@ -245,7 +249,7 @@ namespace frontend {
         // create a TEST node
         Node *testNode = new Node(TEST);
         // create a NOT node
-        Node *notNode = new Node(NOT_NODE);
+        Node *notNode = new Node(NodeType::NOT);
 
         // look at parse tree
         loopNode->adopt(testNode);
@@ -437,9 +441,20 @@ namespace frontend {
         if (relationalOperators.find(currentToken->type) != relationalOperators.end())
         {
             TokenType tokenType = currentToken->type;
-            Node *opNode = tokenType == EQUALS    ? new Node(EQ)
-                                                  : tokenType == LESS_THAN ? new Node(LT)
-                                                                           :                          nullptr;
+            Node *opNode = nullptr;
+            switch (tokenType) {
+                case TokenType::EQUALS :              opNode = new Node(EQ); break;
+                case TokenType::NOT_EQUALS :          opNode = new Node(NE); break;
+                case TokenType::LESS_THAN :           opNode = new Node(LT); break;
+                case TokenType::GREATER_THAN :        opNode = new Node(GT); break;
+                case TokenType::LESS_THAN_EQUALS :    opNode = new Node(LE); break;
+                case TokenType::GREATER_THAN_EQUALS : opNode = new Node(GE); break;
+
+                default: syntaxError("Unexpected token");
+            }
+//            Node *opNode = tokenType == EQUALS    ? new Node(EQ)
+//                                                  : tokenType == LESS_THAN ? new Node(LT)
+//                                                  : nullptr;
 
             currentToken = scanner->nextToken();  // consume relational operator
 
@@ -469,8 +484,17 @@ namespace frontend {
         while (simpleExpressionOperators.find(currentToken->type) !=
                simpleExpressionOperators.end())
         {
-            Node *opNode = currentToken->type == PLUS ? new Node(ADD)
-                                                      : new Node(SUBTRACT);
+            Node *opNode = nullptr;
+            switch (currentToken->type) {
+                case TokenType::PLUS :  opNode = new Node(ADD); break;
+                case TokenType::MINUS : opNode = new Node(SUBTRACT); break;
+                case TokenType::OR :    opNode = new Node(NodeType::OR); break;
+
+                default: syntaxError("Unexpected token");
+
+            }
+//            Node *opNode = currentToken->type == PLUS ? new Node(ADD)
+//                                                      : new Node(SUBTRACT);
 
             currentToken = scanner->nextToken();  // consume the operator
 
@@ -488,16 +512,40 @@ namespace frontend {
     Node *Parser::parseTerm()
     {
         // The current token should now be an identifier or a number.
+        // what if the number starts with a + or - ?
+        Node *termNode = nullptr;
+
+        if (currentToken->type == PLUS){
+            currentToken = scanner->nextToken(); // consume +
+            termNode = parseFactor();
+        }
+        else if (currentToken->type == MINUS){
+            currentToken = scanner->nextToken(); // consume -
+            termNode = new Node(NEGATE);
+            termNode->adopt(parseFactor());
+        } else {
+            termNode = parseFactor();
+        }
 
         // The term's root node->
-        Node *termNode = parseFactor();
+        //Node *termNode = parseFactor();
 
         // Keep parsing more factors as long as the current token
         // is a * or / operator.
         while (termOperators.find(currentToken->type) != termOperators.end())
         {
-            Node *opNode = currentToken->type == STAR ? new Node(MULTIPLY)
-                                                      : new Node(DIVIDE);
+            Node * opNode = nullptr;
+            switch (currentToken->type) {
+                case TokenType::STAR  : opNode = new Node(MULTIPLY);           break;
+                case TokenType::SLASH : opNode = new Node(DIVIDE);             break;
+                case TokenType::DIV   : opNode = new Node(INTEGER_DIVIDE);     break;
+                case TokenType::MOD   : opNode = new Node(MODULO);             break;
+                case TokenType::AND   : opNode = new Node(NodeType::AND); break;
+
+                default : syntaxError("Unexpected token");
+            }
+//            Node *opNode = currentToken->type == STAR ? new Node(MULTIPLY)
+//                                                      : new Node(DIVIDE);
 
             currentToken = scanner->nextToken();  // consume the operator
 
@@ -532,6 +580,13 @@ namespace frontend {
             else syntaxError("Expecting )");
 
             return exprNode;
+        }
+
+        else if (currentToken->type == TokenType::NOT){
+            Node *notNode = new Node(NodeType::NOT);
+            currentToken = scanner->nextToken(); // consume NOT
+            notNode->adopt(parseFactor());
+            return notNode;
         }
 
         else syntaxError("Unexpected token");

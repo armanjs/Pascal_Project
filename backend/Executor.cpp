@@ -33,7 +33,7 @@ namespace backend {
         singletons.insert(INTEGER_CONSTANT);
         singletons.insert(REAL_CONSTANT);
         singletons.insert(STRING_CONSTANT);
-        singletons.insert(NOT_NODE); // not added
+        singletons.insert(NOT); // not added
 
         relationals.insert(EQ);
         relationals.insert(NE);
@@ -193,7 +193,7 @@ namespace backend {
                 case INTEGER_CONSTANT : return visitIntegerConstant(expressionNode);
                 case REAL_CONSTANT    : return visitRealConstant(expressionNode);
                 case STRING_CONSTANT  : return visitStringConstant(expressionNode);
-                case NOT_NODE         : return visitNotNode(expressionNode);
+                case NOT         : return visitNotNode(expressionNode);
 
                 default: return Object();
             }

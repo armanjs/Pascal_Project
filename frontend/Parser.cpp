@@ -314,19 +314,23 @@ namespace frontend {
 
         // create SELECT node
         Node *selectNode = new Node(SELECT);
+        currentToken = scanner->nextToken(); // consume CASE
+        // the SELECT node will adopt the expression (e.g. i+1)
+        Node *expressionNode = parseExpression();
+        selectNode->adopt(expressionNode);
+
+        if (currentToken->type == OF){
+            currentToken = scanner->nextToken(); // consume OF
+        } else { // throw an error if OF does not exist
+            syntaxError("Expecting OF");
+        }
+
         // create BRANCH node
         Node *branchNode = new Node(BRANCH);
         // create a select branch
         Node *selectBranchNode = new Node(SELECT_BRANCH);
         // create a Integer constant node
         Node *integerConstant = new Node(INTEGER_CONSTANT);
-
-        currentToken = scanner->nextToken(); // consume CASE
-        selectNode->adopt(parseExpression()); // e.g. i+1
-
-        if (currentToken->type == OF){
-            currentToken = scanner->nextToken(); // consume OF
-        } else syntaxError("Expecting OF");
 
         while (currentToken->type != END && currentToken->type != END_OF_FILE){
             selectNode->adopt(branchNode);

@@ -268,44 +268,69 @@ namespace frontend {
     }
 
     Node *Parser::parseForStatement() {
-        // current token should be at FOR
+        // The current token should now be FOR.
 
-        // create a COMPOUND node
+        // Create a COMPOUND node.
         Node *compoundNode = new Node(COMPOUND);
-        currentToken = scanner->nextToken(); // consume FOR
-        // create an ASSIGN node
-        Node *assignNode = new Node(ASSIGN);
-        // create a LOOP node
-        Node *loopNode = new Node(LOOP);
-        // create a TEST node
-        Node *testNode = new Node(TEST);
-        // create a operator node to check for TO or DOWNTO
-        Node *relationalNode;
-        //compoundNode->adopt(parseAssignmentStatement()); // e.g. k := j
-        assignNode->adopt(parseAssignmentStatement());
-        lineNumber = currentToken->lineNumber;
-        assignNode->lineNumber = lineNumber;
+        currentToken = scanner->nextToken();  // consume FOR
 
-        compoundNode->adopt(assignNode); // left child of compound
-        compoundNode->adopt(loopNode); // right child of compound
+        // The COMPOUND node adopts the control variable initialization.
+        Node *assignNode = parseAssignmentStatement();
+        compoundNode->adopt(assignNode);
+
+        // The COMPOUND node's second child is a LOOP node.
+        Node *loopNode = new Node(LOOP);
+        compoundNode->adopt(loopNode);
+
+        // The LOOP node's first child is the TEST node.
+        Node *testNode = new Node(TEST);
         loopNode->adopt(testNode);
 
-        if (currentToken->type == TO){
-            relationalNode = new Node(GT);
-            testNode->adopt(relationalNode);
+        // get tree node of control
+        Node *ctrlNode = assignNode->children[0];
+
+        // The current token should be TO or DOWNTO.
+        bool upTo = true;
+        if (currentToken->type == TO)
+        {
+            currentToken = scanner->nextToken();  // consume TO
         }
-        else {
-            relationalNode = new Node(LT);
-            testNode->adopt(relationalNode);
+        else if (currentToken->type == DOWNTO)
+        {
+            upTo = false;
+            currentToken = scanner->nextToken();  // consume DOWNTO
         }
-        currentToken = scanner->nextToken(); // consume TO/DOWNTO
-        // now we should be at the Integer constant
-        // first find the k variable
-        // COMPOUND's left child is ASSIGN
-        // ASSIGN's left child is k
-        printf("%s", compoundNode->children[0]->text.c_str());
-        relationalNode->adopt(compoundNode->children[0]->children[0]);
-        relationalNode->adopt(parseIntegerConstant());
+        else syntaxError("Expecting TO or DOWNTO");
+
+        // Test against the terminal expression
+        Node *compareNode = upTo ? new Node(GT) : new Node(LT);
+        testNode->adopt(compareNode);
+        compareNode->adopt(ctrlNode);
+        compareNode->adopt(parseExpression());  // terminating expression
+
+        // current token should be DO
+        if (currentToken->type == DO)
+        {
+            currentToken = scanner->nextToken();  // consume DO
+        }
+        else syntaxError("Expecting DO");
+
+        // current LOOP node's second child is statement
+        loopNode->adopt(parseStatement());
+
+        // current LOOP node's third child is assignment
+        // decide if we need to increment or decrement control variable
+        assignNode = new Node(ASSIGN);
+        loopNode->adopt(assignNode);
+        assignNode->adopt(ctrlNode);
+        Node *opNode = upTo ? new Node(ADD) : new Node(SUBTRACT);
+        assignNode->adopt(opNode);
+        opNode->adopt(ctrlNode);
+        Node *numNode = new Node(INTEGER_CONSTANT);
+        numNode->value.L = 1;
+        numNode->value.D = 1;
+        opNode->adopt(numNode);
+
         return compoundNode;
     }
 

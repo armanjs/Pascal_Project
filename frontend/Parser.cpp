@@ -349,7 +349,7 @@ namespace frontend {
         currentToken = scanner->nextToken(); // consume CASE
         // the SELECT node will adopt the expression (e.g. i+1)
         Node *expressionNode = parseExpression();
-        selectNode->adopt(expressionNode);
+        selectNode->adopt(expressionNode); // right child of SELECT
 
         if (currentToken->type == OF){
             currentToken = scanner->nextToken(); // consume OF
@@ -357,21 +357,39 @@ namespace frontend {
             syntaxError("Expecting OF");
         }
 
-        // create BRANCH node
-        Node *branchNode = new Node(BRANCH);
-        // create a select branch
-        Node *selectBranchNode = new Node(SELECT_BRANCH);
-        // create a Integer constant node
-        Node *integerConstant = new Node(INTEGER_CONSTANT);
-
-        while (currentToken->type != END && currentToken->type != END_OF_FILE){
-            // create select branch nodes that will have children
-            // select branch node will have a child select constants
-            // selects constants will have one or more children that are int const
+        while ((currentToken->type == INTEGER) || (currentToken->type == PLUS)
+                || (currentToken->type == MINUS)){
+            // create SELECT branch nodes that will have children
+            // SELECT_BRANCH node will have a child SELECT_CONSTANT
             // select will have another child that is just a statement
-            selectNode->adopt(branchNode);
-            branchNode->adopt(selectBranchNode);
-            parseConstantList(selectBranchNode);
+
+            // create a SELECT_BRANCH node
+            Node *selectBranchNode = new Node(SELECT_BRANCH);
+            // create a SELECT_CONSTANTS node
+            Node *selectConstantsNode = new Node(SELECT_CONSTANTS);
+            // right child of SELECT
+            selectNode->adopt(selectBranchNode);
+            // left child of SELECT_CONSTANTS
+            selectBranchNode->adopt(selectConstantsNode);
+
+            // we should encounter a comma separated list of integers
+            // they should be parsed until : is reached
+            // INTEGER_CONSTANT may have + or -
+            // SELECT_CONSTANT will adopt the INTEGER_CONSTANT node
+            do {
+                bool negate = false; // set a boolean for - behind INTEGER_CONSTANT
+                // check for + or - for consumption
+                if ((currentToken->type == PLUS) || (currentToken->type == MINUS)){
+                    if (currentToken->type == MINUS){ // if minus was found return true
+                        negate = true;
+                    }
+                    currentToken = scanner->nextToken(); // consume + or -
+                }
+
+            } while (currentToken->type != COLON);
+
+            currentToken = scanner->nextToken(); // consume :
+
             if (currentToken->type == COLON){
                 currentToken = scanner->nextToken(); // consume :
             }

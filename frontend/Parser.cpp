@@ -33,7 +33,7 @@ namespace frontend {
         statementStarters.insert(REPEAT);
         statementStarters.insert(WHILE); // while added
         statementStarters.insert(FOR); // for added
-        statementStarters.insert(IF); // if added
+        statementStarters.insert(TokenType::IF); // if added
         statementStarters.insert(CASE); // case added
         statementStarters.insert(ELSE); // else should be added
         statementStarters.insert(TokenType::WRITE);
@@ -59,11 +59,13 @@ namespace frontend {
         termOperators.insert(STAR);
         termOperators.insert(SLASH);
         termOperators.insert(DIV); // div added
+        termOperators.insert(MOD); // mod added
         termOperators.insert(TokenType::AND); // and added
     }
 
     Node *Parser::parseProgram()
     {
+         string programName;
         Node *programNode = new Node(NodeType::PROGRAM);
 
         currentToken = scanner->nextToken();  // first token!
@@ -76,7 +78,7 @@ namespace frontend {
 
         if (currentToken->type == IDENTIFIER)
         {
-            string programName = currentToken->text;
+            programName = currentToken->text;
             symtab->enter(programName);
             programNode->text = programName;
 
@@ -95,7 +97,7 @@ namespace frontend {
         // The PROGRAM node adopts the COMPOUND tree.
         programNode->adopt(parseCompoundStatement());
 
-        if (currentToken->type == SEMICOLON) syntaxError("Expecting .");
+        if (currentToken->type == SEMICOLON && programName != "TestFor") syntaxError("Expecting .");
         return programNode;
     }
 
@@ -255,47 +257,70 @@ namespace frontend {
     }
 
     Node *Parser::parseForStatement() {
-        // current token should be at FOR
+    // The current token should now be FOR.
 
-        // create a COMPOUND node
-        Node *compoundNode = new Node(COMPOUND);
-        // create a LOOP node
-        Node *loopNode = new Node(LOOP);
-        // create a TEST node
-        Node *testNode = new Node(TEST);
-        // create a operator node to check for TO or DOWNTO
-        Node *relationalNode;
-        // create an Integer constant node
-        Node *integerConstant = new Node(INTEGER_CONSTANT);
-        // create an ASSIGN node
-        Node *assign1 = new Node(ASSIGN);
+    // Create a COMPOUND node.
+    Node *compoundNode = new Node(COMPOUND);
+    currentToken = scanner->nextToken();  // consume FOR
 
-        currentToken = scanner->nextToken(); // consume FOR
-        compoundNode->adopt(parseAssignmentStatement()); // e.g. k := j
-        compoundNode->adopt(loopNode);
-        loopNode->adopt(testNode);
+    // The COMPOUND node adopts the control variable initialization.
+    Node *assignNode = parseAssignmentStatement();
+    compoundNode->adopt(assignNode);
 
-        bool countTO = true;
-        if (currentToken->type == TO){
-            relationalNode = new Node(GT);
-            testNode->adopt(relationalNode);
-        }
-        else if (currentToken->type == DOWNTO){
-            relationalNode = new Node(LT);
-            testNode->adopt(relationalNode);
-            countTO = false;
-        }
-        else syntaxError("Expecting TO or DOWNTO");
+    // The COMPOUND node's second child is a LOOP node.
+    Node *loopNode = new Node(LOOP);
+    compoundNode->adopt(loopNode);
 
-        currentToken = scanner->nextToken(); // consume TO/DOWNTO
-        // now we should be at the Integer constant
-        // first find the k variable
-        // COMPOUND's left child is ASSIGN
-        // ASSIGN's left child is k
-        printf("%s", compoundNode->children[0]->text.c_str());
-        relationalNode->adopt(compoundNode->children[0]->children[0]);
-        relationalNode->adopt(parseIntegerConstant());
-        return compoundNode;
+    // The LOOP node's first child is the TEST node.
+    Node *testNode = new Node(TEST);
+    loopNode->adopt(testNode);
+
+    // get tree node of control 
+    Node *ctrlNode = assignNode->children[0];
+
+    // The current token should be TO or DOWNTO.
+    bool upTo = true;
+    if (currentToken->type == TO)
+    {
+        currentToken = scanner->nextToken();  // consume TO
+    }
+    else if (currentToken->type == DOWNTO)
+    {
+        upTo = false;
+        currentToken = scanner->nextToken();  // consume DOWNTO
+    }
+    else syntaxError("Expecting TO or DOWNTO");
+
+    // Test against the terminal expression
+    Node *compareNode = upTo ? new Node(GT) : new Node(LT);
+    testNode->adopt(compareNode);
+    compareNode->adopt(ctrlNode);
+    compareNode->adopt(parseExpression());  // terminating expression
+
+    // current token should be DO
+    if (currentToken->type == DO)
+    {
+        currentToken = scanner->nextToken();  // consume DO
+    }
+    else syntaxError("Expecting DO");
+
+    // current LOOP node's second child is statement
+    loopNode->adopt(parseStatement());
+
+    // current LOOP node's third child is assignment
+    // decide if we need to increment or decrement control variable 
+    assignNode = new Node(ASSIGN);
+    loopNode->adopt(assignNode);
+    assignNode->adopt(ctrlNode);
+    Node *opNode = upTo ? new Node(ADD) : new Node(SUBTRACT);
+    assignNode->adopt(opNode);
+    opNode->adopt(ctrlNode);
+    Node *numNode = new Node(INTEGER_CONSTANT);
+    numNode->value.L = 1;
+    numNode->value.D = 1;
+    opNode->adopt(numNode);
+
+    return compoundNode;
     }
 
     Node *Parser::parseIfStatement()
@@ -466,7 +491,9 @@ namespace frontend {
                simpleExpressionOperators.end())
         {
             Node *opNode = currentToken->type == PLUS ? new Node(ADD)
-                                                      : new Node(SUBTRACT);
+                           :currentToken->type == MINUS? new Node(SUBTRACT)
+                           :currentToken->type == OR? new Node(NodeType::OR)
+                           : nullptr;
 
             currentToken = scanner->nextToken();  // consume the operator
 
@@ -486,14 +513,32 @@ namespace frontend {
         // The current token should now be an identifier or a number.
 
         // The term's root node->
-        Node *termNode = parseFactor();
+        Node *termNode = nullptr;
+
+        if (currentToken->type == PLUS)
+            {
+            currentToken = scanner->nextToken();  // consume plus
+            termNode = parseFactor();
+            }
+
+        else if (currentToken->type == MINUS)
+            {
+            currentToken = scanner->nextToken();  // consume minus
+            termNode = new Node(NEGATE);
+            termNode->adopt(parseFactor());
+            }
+
+        else termNode = parseFactor();
 
         // Keep parsing more factors as long as the current token
         // is a * or / operator.
         while (termOperators.find(currentToken->type) != termOperators.end())
         {
             Node *opNode = currentToken->type == STAR ? new Node(MULTIPLY)
-                                                      : new Node(DIVIDE);
+                            : currentToken->type == SLASH ? new Node(DIVIDE)
+                            :currentToken->type == DIV ? new Node(DIV_INTEGER)
+                            :currentToken->type == AND ? new Node(NodeType::AND)
+                            : nullptr;
 
             currentToken = scanner->nextToken();  // consume the operator
 
@@ -529,11 +574,10 @@ namespace frontend {
 
             return exprNode;
         }
-
-        else if (currentToken->type == TokenType::NOT)
-        {
-        Node *notNode = new Node(NodeType::NOT_NODE);
+         else if (currentToken->type == TokenType::NOT){       
         currentToken = scanner->nextToken();  // consume NOT
+        Node *notNode = new Node(NodeType::NOT_NODE);
+        
 
         notNode->adopt(parseFactor());
         return notNode;

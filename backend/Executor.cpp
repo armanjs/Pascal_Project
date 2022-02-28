@@ -246,16 +246,29 @@ namespace backend {
             case MULTIPLY : value = value1 * value2; break;
 
             case DIVIDE :
+            case INTEGER_DIVIDE :
+            case MODULO :
             {
-                if (value2 != 0.0) value = value1/value2;
-                else
+                if (value2 != 0.0)
                 {
-                    runtimeError(expressionNode, "Division by zero");
-                    return new Object(0.0);
-                }
+                    if (expressionNode->type == DIVIDE) value = value1/value2;
+                    else
+                    {
+                        long ivalue1 = (long) value1;
+                        long ivalue2 = (long) value2;
 
-                break;
+                        value = expressionNode->type == INTEGER_DIVIDE
+                                    ? ivalue1/ivalue2 : ivalue1%ivalue2;
+                    }
             }
+            else
+            {
+                runtimeError(expressionNode, "Division by zero");
+                return 0.0;
+            }
+
+            break;
+        }
 
             default : break;
         }

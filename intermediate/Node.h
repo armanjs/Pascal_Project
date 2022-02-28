@@ -18,16 +18,16 @@ namespace intermediate {
     enum class NodeType
     {
         PROGRAM, COMPOUND, ASSIGN, LOOP, TEST, WRITE, WRITELN,
-        ADD, SUBTRACT, MULTIPLY, DIVIDE, EQ, NE, LT, GT, LE, GE, NOT_NODE, NEGATE, AND, OR, IF,
-        VARIABLE, INTEGER_CONSTANT, REAL_CONSTANT, STRING_CONSTANT
+        ADD, SUBTRACT, MULTIPLY, DIVIDE, EQ, NE, LT, GT, LE, GE, NOT_NODE, INTEGER_DIVIDE, MODULO, NEGATE, AND, OR, IF,
+        VARIABLE, INTEGER_CONSTANT, REAL_CONSTANT, STRING_CONSTANT, DIV_INTEGER
     };
 
     static const string NODE_TYPE_STRINGS[] =
             {
                     "PROGRAM", "COMPOUND", "ASSIGN", "LOOP", "TEST", "WRITE", "WRITELN",
                     "ADD", "SUBTRACT", "MULTIPLY", "DIVIDE", "EQ",
-                    "NE", "LT", "GT", "LE", "GE", "NOT_NODE", "NEGATE", "AND", "OR", "IF",
-                    "VARIABLE", "INTEGER_CONSTANT", "REAL_CONSTANT", "STRING_CONSTANT"
+                    "NE", "LT", "GT", "LE", "GE", "NOT_NODE", "INTEGER_DIVIDE", "MODULO", "NEGATE", "AND", "OR", "IF",
+                    "VARIABLE", "INTEGER_CONSTANT", "REAL_CONSTANT", "STRING_CONSTANT", "DIV_INTEGER"
             };
 
     constexpr NodeType PROGRAM          = NodeType::PROGRAM;
@@ -48,6 +48,8 @@ namespace intermediate {
     constexpr NodeType LE               = NodeType::LE; // Less or Equal added
     constexpr NodeType GE               = NodeType::GE; // Greater or Equal added
     constexpr NodeType NOT_NODE         = NodeType::NOT_NODE; // NOT added
+    constexpr NodeType INTEGER_DIVIDE   = NodeType::INTEGER_DIVIDE; // INTEGER_DIVIDE added
+    constexpr NodeType MODULO           = NodeType::MODULO; // MODULO added
     constexpr NodeType NEGATE           = NodeType::NEGATE; // NEGATE added
     constexpr NodeType AND              = NodeType::AND; // AND added
     constexpr NodeType OR               = NodeType::OR; // OR added
@@ -56,6 +58,7 @@ namespace intermediate {
     constexpr NodeType INTEGER_CONSTANT = NodeType::INTEGER_CONSTANT;
     constexpr NodeType REAL_CONSTANT    = NodeType::REAL_CONSTANT;
     constexpr NodeType STRING_CONSTANT  = NodeType::STRING_CONSTANT;
+    constexpr NodeType DIV_INTEGER      = NodeType::DIV_INTEGER; //added
 
     class Node
     {

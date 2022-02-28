@@ -136,8 +136,21 @@ namespace backend {
         return visit(testNode->children[0]);
     }
 
-    Object Executor::visitIf(Node *ifNode) {
-
+    Object Executor::visitIf(Node *ifNode) { // IF i = j THEN x := 3.14 ELSE x := -5;
+        Node *expressionNode = ifNode->children[0]; // e.g. i = j (expression)
+        Node *thenStatementNode = ifNode->children[1]; // x := 3.14 (statement)
+        // check to see if the tree has more than 2 children
+        // if so, go to the right most child (statement), if not accept null pointer
+        Node *elseStatementNode = ifNode->children.size() > 2 ? ifNode->children[2]
+                                                                : nullptr;
+        bool b = visit(expressionNode).B; // cast expression to bool
+        if (b) { // if true
+            return visit(thenStatementNode);
+        }
+        else if (elseStatementNode != nullptr){
+            return visit(elseStatementNode);
+        }
+        return Object();
     }
 
     Object Executor::visitSwitch(Node *switchNode) {

@@ -113,7 +113,7 @@ namespace frontend {
             case REPEAT :     stmtNode = parseRepeatStatement();     break;
             case WHILE :      stmtNode = parseWhileStatement();      break; // while added
             case FOR :        stmtNode = parseForStatement();        break; // for added
-            //case IF :         stmtNode = parseIfStatement();         break; // if added
+            case IF :         stmtNode = parseIfStatement();         break; // if added
             case CASE :       stmtNode = parseCaseStatement();       break; // case added
             case WRITE :      stmtNode = parseWriteStatement();      break;
             case WRITELN :    stmtNode = parseWritelnStatement();    break;
@@ -309,6 +309,38 @@ namespace frontend {
         return compoundNode;
     }
 
+    //IF statement parsing
+    Node *Parser::parseIfStatement(){
+        //creating IF node
+        Node *IFNode = new Node(NodeType::IF);    //doing nodetype::IF because otherwise it will link the tokentype::IF by default
+        currentToken = scanner->nextToken();  // consume IF
+
+        // The IFnode adopts the expression subtree.
+        IFNode->adopt(parseExpression());
+
+        //here the expression gets parsed, the next step is to verify THEN
+        if (currentToken->type == THEN) {
+            currentToken = scanner->nextToken();  // consume THEN
+        }
+        else{
+            syntaxError("Expecting THEN");  //-_- Error
+        }
+
+        //For THEN subtree, lets consider it as normal statement tree
+        IFNode->adopt(parseStatement());
+
+        //lets check for ELSE keyword, if there is 'ELSE' , we will let IFnode adopt it as its third child (ref. class4 slide #23)
+
+        if (currentToken->type == ELSE) {
+            currentToken = scanner->nextToken();  // consume ELSE
+            IFNode->adopt(parseStatement()); //again process ELSE subtree (like THEN subtree)
+        }
+
+        //Note:IF there is no ELSE, its not a syntax error (unlikeTHEN subtree)
+
+        return IFNode;
+    }
+
     Node *Parser::parseCaseStatement() {
         // the current token should be CASE
 
@@ -333,6 +365,10 @@ namespace frontend {
         Node *integerConstant = new Node(INTEGER_CONSTANT);
 
         while (currentToken->type != END && currentToken->type != END_OF_FILE){
+            // create select branch nodes that will have children
+            // select branch node will have a child select constants
+            // selects constants will have one or more children that are int const
+            // select will have another child that is just a statement
             selectNode->adopt(branchNode);
             branchNode->adopt(selectBranchNode);
             parseConstantList(selectBranchNode);

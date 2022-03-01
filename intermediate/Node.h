@@ -17,14 +17,16 @@ namespace intermediate {
     {
         PROGRAM, COMPOUND, ASSIGN, LOOP, TEST, WRITE, WRITELN,
         ADD, SUBTRACT, MULTIPLY, DIVIDE, EQ,NE, LT,LE,  GT, GE, NOT,NEGATE, IF,
-        VARIABLE, INTEGER_CONSTANT, REAL_CONSTANT, STRING_CONSTANT, AND, OR, DIV_INTEGER
+        VARIABLE, INTEGER_CONSTANT, REAL_CONSTANT, STRING_CONSTANT, AND, OR, DIV_INTEGER, SELECT, SELECT_BRANCH, SELECT_CONSTANTS,
+        SWITCH, INTEGER_DIVIDE, MODULO, NOT_NODE
     };
 
     static const string NODE_TYPE_STRINGS[] =
             {
                     "PROGRAM", "COMPOUND", "ASSIGN", "LOOP", "TEST",  "WRITE", "WRITELN",
                     "ADD", "SUBTRACT", "MULTIPLY", "DIVIDE", "EQ", "NE", "LT", "LE", "GT", "GE", "NOT", "NEGATE","IF"
-                    "VARIABLE", "INTEGER_CONSTANT", "REAL_CONSTANT", "STRING_CONSTANT", "AND", "OR", "DIV_INTEGER"
+                    "VARIABLE", "INTEGER_CONSTANT", "REAL_CONSTANT", "STRING_CONSTANT", "AND", "OR", "DIV_INTEGER", "SELECT",
+                     "SELECT_BRANCH", "SELECT_CONSTANTS","SWITCH", "INTEGER_DIVIDE", "MODULO", "NOT_NODE"
             };
 
     constexpr NodeType PROGRAM          = NodeType::PROGRAM;
@@ -52,8 +54,15 @@ namespace intermediate {
     constexpr NodeType REAL_CONSTANT    = NodeType::REAL_CONSTANT;
     constexpr NodeType STRING_CONSTANT  = NodeType::STRING_CONSTANT;
     constexpr NodeType AND              = NodeType::AND; //added 
-    constexpr NodeType OR               = NodeType::AND; //added 
+    constexpr NodeType OR               = NodeType::OR; //added 
     constexpr NodeType DIV_INTEGER      = NodeType::DIV_INTEGER; //added
+    constexpr NodeType SELECT           = NodeType::SELECT;
+    constexpr NodeType SELECT_BRANCH           = NodeType::SELECT_BRANCH;
+    constexpr NodeType SELECT_CONSTANTS           = NodeType::SELECT_CONSTANTS;
+     constexpr NodeType SWITCH           = NodeType::SWITCH; 
+     constexpr NodeType INTEGER_DIVIDE           = NodeType::INTEGER_DIVIDE; 
+     constexpr NodeType MODULO        = NodeType::MODULO; 
+      constexpr NodeType NOT_NODE       = NodeType::NOT_NODE; 
     class Node
     {
     public:

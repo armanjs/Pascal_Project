@@ -1,3 +1,6 @@
+//
+// Created by Arman Sadeghi on 2/16/22.
+//
 
 /**
  * A simple interpreter to demonstrate scanning, parsing, symbol tables,
@@ -125,4 +128,3 @@ void executeProgram(Parser *parser, Symtab *symtab)
         cout << endl << "There were " << errorCount << " errors." << endl;
     }
 }
-

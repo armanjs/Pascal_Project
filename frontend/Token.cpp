@@ -1,3 +1,6 @@
+//
+// Created by Arman Sadeghi on 2/12/22.
+//
 
 /**
  * Token class for a simple interpreter.

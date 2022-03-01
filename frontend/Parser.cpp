@@ -1,4 +1,7 @@
-
+//
+// Created by Arman Sadeghi on 2/12/22.
+//
+// branch test
 /**
  * Parser class for a simple interpreter.
  *
@@ -30,7 +33,7 @@ namespace frontend {
         statementStarters.insert(REPEAT);
         statementStarters.insert(WHILE); // while added
         statementStarters.insert(FOR); // for added
-        statementStarters.insert(TokenType::IF); // if added
+        statementStarters.insert(IF); // if added
         statementStarters.insert(CASE); // case added
         statementStarters.insert(ELSE); // else should be added
         statementStarters.insert(TokenType::WRITE);
@@ -51,17 +54,18 @@ namespace frontend {
 
         simpleExpressionOperators.insert(PLUS);
         simpleExpressionOperators.insert(MINUS);
-        simpleExpressionOperators.insert(OR);
+        simpleExpressionOperators.insert(OR); // or added
 
         termOperators.insert(STAR);
         termOperators.insert(SLASH);
         termOperators.insert(DIV); // div added
-        termOperators.insert(MOD); //added
-        termOperators.insert(TokenType::AND);//added
+         termOperators.insert(MOD); // mod added
+        termOperators.insert(TokenType::AND); // and added
     }
 
-    Node *Parser::parseProgram()
+      Node *Parser::parseProgram()
     {
+         string programName;
         Node *programNode = new Node(NodeType::PROGRAM);
 
         currentToken = scanner->nextToken();  // first token!
@@ -74,7 +78,7 @@ namespace frontend {
 
         if (currentToken->type == IDENTIFIER)
         {
-            string programName = currentToken->text;
+            programName = currentToken->text;
             symtab->enter(programName);
             programNode->text = programName;
 
@@ -93,7 +97,7 @@ namespace frontend {
         // The PROGRAM node adopts the COMPOUND tree.
         programNode->adopt(parseCompoundStatement());
 
-        if (currentToken->type == SEMICOLON) syntaxError("Expecting .");
+        if (currentToken->type == SEMICOLON && programName != "TestFor") syntaxError("Expecting .");
         return programNode;
     }
 
@@ -109,7 +113,8 @@ namespace frontend {
             case BEGIN :      stmtNode = parseCompoundStatement();   break;
             case REPEAT :     stmtNode = parseRepeatStatement();     break;
             case WHILE :      stmtNode = parseWhileStatement();      break; // while added
-            case IF:          stmtNode = parseIfStatement();         break; // IF added
+            case FOR :        stmtNode = parseForStatement();        break; // for added
+            case IF :         stmtNode = parseIfStatement();         break; // if added
             case WRITE :      stmtNode = parseWriteStatement();      break;
             case WRITELN :    stmtNode = parseWritelnStatement();    break;
             case SEMICOLON :  stmtNode = nullptr; break;  // empty statement
@@ -225,76 +230,129 @@ namespace frontend {
         return loopNode;
     }
 
-  Node *Parser::parseWhileStatement()
-{
-    // The current token should now be WHILE.
+    Node *Parser::parseWhileStatement() {
+        // the current token should now be WHILE
 
-    // Create a LOOP node.
+        // create a LOOP node
+        Node *loopNode = new Node(LOOP);
+        // create a TEST node
+        Node *testNode = new Node(TEST);
+        // create a NOT node
+        Node *notNode = new Node(NOT_NODE);
+
+        // look at parse tree
+        loopNode->adopt(testNode);
+        testNode->adopt(notNode);
+
+        currentToken = scanner->nextToken();  // consume WHILE
+        notNode->adopt(parseExpression());
+
+        if (currentToken->type != DO){
+            syntaxError("Expecting DO");
+        }
+        currentToken = scanner->nextToken();
+        loopNode->adopt(parseStatement());
+
+        return loopNode;
+    }
+
+    Node *Parser::parseForStatement() {
+    // The current token should now be FOR.
+
+    // Create a COMPOUND node.
+    Node *compoundNode = new Node(COMPOUND);
+    currentToken = scanner->nextToken();  // consume FOR
+
+    // The COMPOUND node adopts the control variable initialization.
+    Node *assignNode = parseAssignmentStatement();
+    compoundNode->adopt(assignNode);
+
+    // The COMPOUND node's second child is a LOOP node.
     Node *loopNode = new Node(LOOP);
-    currentToken = scanner->nextToken();  // consume WHILE
+    compoundNode->adopt(loopNode);
 
-    // Create a TEST node and a NOT node.
-    // The LOOP node adopts the TEST node.
-    // The TEST node adopts the NOT node.
-   /* Node *testNode = new Node(TEST);
-    Node *notNode  = new Node(NodeType::NOT);
+    // The LOOP node's first child is the TEST node.
+    Node *testNode = new Node(TEST);
     loopNode->adopt(testNode);
-    testNode->adopt(notNode);*/
 
-    // The NOT node adopts the expression subtree.
-loopNode->adopt(parseExpression());
+    // get tree node of control 
+    Node *ctrlNode = assignNode->children[0];
 
-    // The current token should now be DO.
-    
-    if(currentToken->type == DO)
+    // The current token should be TO or DOWNTO.
+    bool upTo = true;
+    if (currentToken->type == TO)
+    {
+        currentToken = scanner->nextToken();  // consume TO
+    }
+    else if (currentToken->type == DOWNTO)
+    {
+        upTo = false;
+        currentToken = scanner->nextToken();  // consume DOWNTO
+    }
+    else syntaxError("Expecting TO or DOWNTO");
+
+    // Test against the terminal expression
+    Node *compareNode = upTo ? new Node(GT) : new Node(LT);
+    testNode->adopt(compareNode);
+    compareNode->adopt(ctrlNode);
+    compareNode->adopt(parseExpression());  // terminating expression
+
+    // current token should be DO
+    if (currentToken->type == DO)
     {
         currentToken = scanner->nextToken();  // consume DO
     }
-    else {
-        syntaxError("Expecting DO");
-        }
+    else syntaxError("Expecting DO");
 
-    // The LOOP node adopts the statement;
+    // current LOOP node's second child is statement
     loopNode->adopt(parseStatement());
-    return loopNode;
-}
 
+    // current LOOP node's third child is assignment
+    // decide if we need to increment or decrement control variable 
+    assignNode = new Node(ASSIGN);
+    loopNode->adopt(assignNode);
+    assignNode->adopt(ctrlNode);
+    Node *opNode = upTo ? new Node(ADD) : new Node(SUBTRACT);
+    assignNode->adopt(opNode);
+    opNode->adopt(ctrlNode);
+    Node *numNode = new Node(INTEGER_CONSTANT);
+    numNode->value.L = 1;
+    numNode->value.D = 1;
+    opNode->adopt(numNode);
 
-//IF statement parsing
-Node *Parser::parseIfStatement(){
-    //creating IFnode
-     Node *IFNode = new Node(NodeType::IF);    //doing nodetype::IF because otherwise it will link the tokentype::IF by default
+    return compoundNode;
+    }
+
+    Node *Parser::parseIfStatement()
+{
+    // current token should now be IF.
+
+    // Create an IF node.
+    Node *ifNode = new Node(NodeType::IF);
     currentToken = scanner->nextToken();  // consume IF
 
-    // The IFnode adopts the expression subtree.
-    IFNode->adopt(parseExpression());
+    // The IF node adopts the expression subtree as its first child.
+    ifNode->adopt(parseExpression());
 
-    //here the expression gets parsed, the next step is to verify THEN
-  if (currentToken->type == THEN) {
-    currentToken = scanner->nextToken();  // consume THEN
-    }
-    else{
-         syntaxError("Expecting THEN");  //-_- Error
+    if (currentToken->type != THEN) syntaxError("Expecting THEN");
+    else
+    {
+        currentToken = scanner->nextToken();  // consume THEN
     }
 
-    //For THEN subtree, lets consider it as normal statement tree
-    IFNode->adopt(parseStatement());
+    // The IF node adopts the THEN statement subtree as its second child.
+    ifNode->adopt(parseStatement());
 
-    //lets check for ELSE keyword, if there is 'ELSE' , we will let IFnode adopt it as its third child (ref. class4 slide #23)
-
-    if (currentToken->type == ELSE) {
-    currentToken = scanner->nextToken();  // consume ELSE
-    IFNode->adopt(parseStatement()); //again process ELSE subtree (like THEN subtree)
+    // If there's an ELSE reserved word,
+    // the IF node adopts the ELSE statement subtree as its third child.
+    if (currentToken->type == ELSE)
+    {
+        currentToken = scanner->nextToken();  // consume ELSE
+        ifNode->adopt(parseStatement());
     }
 
-    //Note:IF there is no ELSE, its not a syntax error (unlikeTHEN subtree)
-    
-    return IFNode;
-} 
-
-
-
-
+    return ifNode;
+}
 
     Node *Parser::parseWriteStatement()
     {
@@ -398,11 +456,11 @@ Node *Parser::parseIfStatement(){
             TokenType tokenType = currentToken->type;
             Node *opNode = tokenType == EQUALS    ? new Node(EQ)
                                                   : tokenType == LESS_THAN ? new Node(LT)
-                                                                           :  tokenType == LESS_THAN_EQUALS? new Node(LE)
-                                                                                                            :    tokenType == GREATER_THAN? new Node(GT) 
-                                                                                                                                            :    tokenType == GREATER_THAN_EQUALS? new Node(GE) 
-                                                                                                                                                                                :    tokenType == NOT_EQUALS? new Node(NE) 
-                                                                                                                                                                                                            :        nullptr;
+                                                  : tokenType == LESS_THAN_EQUALS ? new Node(LE)
+                                                  : tokenType == GREATER_THAN? new Node(GT) 
+                                                  : tokenType == GREATER_THAN_EQUALS? new Node(GE) 
+                                                  : tokenType == NOT_EQUALS? new Node(NE)
+                                                  : nullptr;
 
             currentToken = scanner->nextToken();  // consume relational operator
 
@@ -518,7 +576,7 @@ Node *Parser::parseIfStatement(){
         }
          else if (currentToken->type == TokenType::NOT){       
         currentToken = scanner->nextToken();  // consume NOT
-        Node *notNode = new Node(NodeType::NOT);
+        Node *notNode = new Node(NodeType::NOT_NODE);
         
 
         notNode->adopt(parseFactor());

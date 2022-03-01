@@ -1,4 +1,6 @@
-
+//
+// Created by Arman Sadeghi on 2/12/22.
+//
 
 /**
  * Executor class for a simple interpreter.
@@ -48,6 +50,8 @@ namespace backend {
         Object visitCompound(Node *compoundNode);
         Object visitAssign(Node *assignNode);
         Object visitLoop(Node *loopNode);
+        Object visitIf(Node *ifNode);
+        Object visitSwitch(Node *switchNode);
         Object visitTest(Node *testNode);
         Object visitWrite(Node *writeNode);
         Object visitWriteln(Node *writelnNode);
@@ -57,11 +61,14 @@ namespace backend {
         Object visitRealConstant(Node *realConstantNode);
         Object visitStringConstant(Node *stringConstantNode);
 
+        Object visitNotNode(Node *NotNode);
+        Object visitNegateNode(Node *NegateNode);
+
         void printValue(vector<Node *> children);
         void runtimeError(Node *node, string message);
+
     };
 
 }  // namespace backend
 
 #endif //PASCALSCANNER_EXECUTOR_H
-

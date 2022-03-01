@@ -1,3 +1,6 @@
+//
+// Created by Arman Sadeghi on 2/12/22.
+//
 
 /**
  * Executor class for a simple interpreter.
@@ -30,9 +33,17 @@ namespace backend {
         singletons.insert(INTEGER_CONSTANT);
         singletons.insert(REAL_CONSTANT);
         singletons.insert(STRING_CONSTANT);
+        singletons.insert(NOT_NODE);
+        singletons.insert(NEGATE);
 
         relationals.insert(EQ);
+        relationals.insert(NE);
         relationals.insert(LT);
+        relationals.insert(GT);
+        relationals.insert(LE);
+        relationals.insert(GE);
+        relationals.insert(AND);
+        relationals.insert(OR);
     }
 
     Object Executor::visit(Node *node)
@@ -185,7 +196,16 @@ namespace backend {
                 case INTEGER_CONSTANT : return visitIntegerConstant(expressionNode);
                 case REAL_CONSTANT    : return visitRealConstant(expressionNode);
                 case STRING_CONSTANT  : return visitStringConstant(expressionNode);
-
+                case NOT_NODE :
+                {
+                bool b = visit(expressionNode->children[0]).B;
+                return !b;
+                }
+                case NEGATE :
+                {
+                double value = visit(expressionNode->children[0]).D;
+                return -value;
+                }
                 default: return Object();
             }
         }
@@ -202,7 +222,13 @@ namespace backend {
             switch (expressionNode->type)
             {
                 case EQ : value = value1 == value2; break;
+                case NE : value = value1 != value2; break;
                 case LT : value = value1 <  value2; break;
+                case GT : value = value1 >  value2; break;
+                case LE : value = value1 <=  value2; break;
+                case GE : value = value1 >=  value2; break;
+                case AND : value = value1 && value2; break;
+                case OR  : value = value1 || value2; break;
 
                 default : break;
             }
@@ -220,16 +246,29 @@ namespace backend {
             case MULTIPLY : value = value1 * value2; break;
 
             case DIVIDE :
+            case INTEGER_DIVIDE :
+            case MODULO :
             {
-                if (value2 != 0.0) value = value1/value2;
-                else
+                if (value2 != 0.0)
                 {
-                    runtimeError(expressionNode, "Division by zero");
-                    return new Object(0.0);
-                }
+                    if (expressionNode->type == DIVIDE) value = value1/value2;
+                    else
+                    {
+                        long ivalue1 = (long) value1;
+                        long ivalue2 = (long) value2;
 
-                break;
+                        value = expressionNode->type == INTEGER_DIVIDE
+                                    ? ivalue1/ivalue2 : ivalue1%ivalue2;
+                    }
             }
+            else
+            {
+                runtimeError(expressionNode, "Division by zero");
+                return 0.0;
+            }
+
+            break;
+        }
 
             default : break;
         }

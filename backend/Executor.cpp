@@ -131,6 +131,7 @@ namespace backend {
 
     Object Executor::visitSwitch(Node *switchNode)
 {
+    // go through the subtrees of select_branch to see if the expression can be matched
     bool complete = false;
     for (int x = 1; (x < switchNode->children.size()); x++)
     {
@@ -138,6 +139,7 @@ namespace backend {
         Node *CNODE = BNODE->children[0];
         for (Node *curr : CNODE->children)
         {
+            // for each branch constant, see if a match is found
             if (((long) visit(switchNode->children[0]).D) == curr->value.L)
             {
                 complete = true;
@@ -145,6 +147,7 @@ namespace backend {
                 visit(stmtNode);     
             }
         }
+        // if a match is found, exit the loop and return the object
         if (complete)
             break;
     }

@@ -118,6 +118,7 @@ namespace frontend {
             case WRITE :      stmtNode = parseWriteStatement();      break;
             case WRITELN :    stmtNode = parseWritelnStatement();    break;
             case SEMICOLON :  stmtNode = nullptr; break;  // empty statement
+            case CASE :       stmtNode = parseCaseStatement();       break;
 
             default : syntaxError("Unexpected token");
         }
@@ -352,6 +353,85 @@ namespace frontend {
     }
 
     return ifNode;
+}
+
+Node *Parser::parseCaseStatement()
+{
+    // The current token should now be CASE.
+
+    // Create a SWITCH node.
+    Node *switchNode = new Node(SWITCH);
+    currentToken = scanner->nextToken();  // consume CASE
+
+    // The SWITCH node adopts the expression subtree.
+    Node *exprNode = parseExpression();
+    switchNode->adopt(exprNode);
+
+    if (currentToken->type == OF)
+    {
+        currentToken = scanner->nextToken();  // consume OF
+    }
+    else syntaxError("Expecting OF");
+
+    // Parse CASE branches.
+    while (   (currentToken->type == INTEGER)
+           || (currentToken->type == PLUS) || (currentToken->type == MINUS))
+    {
+        // The SWITCH node adopts a SELECT_BRANCH node.
+        // The SELECT_BRANCH node adopts a SELECT_CONSTANTS node.
+        Node *branchNode = new Node(SELECT_BRANCH);
+        Node *constantsNode = new Node(SELECT_CONSTANTS);
+        switchNode->adopt(branchNode);
+        branchNode->adopt(constantsNode);
+
+        // Parse comma-separated integer constants of a CASE branch until :
+        // The constant may be preceded by + or -
+        // The SELECT_CONSTANTS node adopts each INTEGER_CONSTANT node.
+        do
+        {
+            bool negate = false;
+            if ((currentToken->type == PLUS) || (currentToken->type == MINUS))
+            {
+                negate = currentToken->type == MINUS;
+                currentToken = scanner->nextToken();  // consume + or -
+            }
+
+            Node *constantNode = parseIntegerConstant();
+            if (negate) constantNode->value = -(constantNode->value.L);
+            constantsNode->adopt(constantNode);
+
+            if (currentToken->type == COMMA)
+            {
+                currentToken = scanner->nextToken();  // consume ,
+            }
+        } while (currentToken->type != COLON);
+
+        currentToken = scanner->nextToken();  // consume :
+
+        // The SELECT_BRANCH node adopts the branch statement subtree.
+        branchNode->adopt(parseStatement());
+
+        // Consume semicolons.
+        if (currentToken->type == SEMICOLON)
+        {
+            do
+            {
+                currentToken = scanner->nextToken();  // consume ;
+            } while (currentToken->type == SEMICOLON);
+        }
+    }
+
+    // The current token should now be END.
+    if (currentToken->type == END)
+    {
+        currentToken = scanner->nextToken();  // consume END
+    }
+    else if (statementStarters.find(currentToken->type) != statementStarters.end())
+    {
+        syntaxError("Missing END");
+    }
+
+    return switchNode;
 }
 
     Node *Parser::parseWriteStatement()

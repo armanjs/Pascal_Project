@@ -55,6 +55,7 @@ namespace backend {
             case COMPOUND :
             case ASSIGN :
             case LOOP :
+            case SWITCH :
             case WRITE :
             case WRITELN :  return visitStatement(node);
 
@@ -81,6 +82,7 @@ namespace backend {
             case LOOP :      return visitLoop(statementNode);
             case WRITE :     return visitWrite(statementNode);
             case WRITELN :   return visitWriteln(statementNode);
+            case SWITCH  :   return visitSwitch(statementNode);
 
             default :        return Object();
         }
@@ -126,6 +128,36 @@ namespace backend {
 
         return Object();
     }
+
+    Object Executor::visitSwitch(Node *switchNode)
+{
+    // Evaluate the expression.
+    long value = (long) visit(switchNode->children[0]).D;
+
+    // Loop over the SELECT_BRANCH subtrees to look for a value match.
+    bool foundMatch = false;
+    for (int i = 1; (i < switchNode->children.size()) && !foundMatch; i++)
+    {
+        Node *branchNode = switchNode->children[i];
+        Node *constantsNode = branchNode->children[0];
+
+        // Loop over the branch constants.
+        for (Node *constantNode : constantsNode->children)
+        {
+            // Match?
+            if (value == constantNode->value.L)
+            {
+                Node *stmtNode = branchNode->children[1];
+                visit(stmtNode);
+
+                foundMatch = true;
+                break;
+            }
+        }
+    }
+
+    return Object();
+}
 
     Object Executor::visitTest(Node *testNode)
     {

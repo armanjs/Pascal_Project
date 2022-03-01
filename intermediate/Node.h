@@ -19,7 +19,7 @@ namespace intermediate {
     {
         PROGRAM, COMPOUND, ASSIGN, LOOP, TEST, WRITE, WRITELN,
         ADD, SUBTRACT, MULTIPLY, DIVIDE, EQ, NE, LT, GT, LE, GE, NOT_NODE, INTEGER_DIVIDE, MODULO, NEGATE, AND, OR, IF,
-        VARIABLE, INTEGER_CONSTANT, REAL_CONSTANT, STRING_CONSTANT, DIV_INTEGER
+        VARIABLE, INTEGER_CONSTANT, REAL_CONSTANT, STRING_CONSTANT, DIV_INTEGER, SWITCH, SELECT_BRANCH, SELECT_CONSTANTS
     };
 
     static const string NODE_TYPE_STRINGS[] =
@@ -27,7 +27,7 @@ namespace intermediate {
                     "PROGRAM", "COMPOUND", "ASSIGN", "LOOP", "TEST", "WRITE", "WRITELN",
                     "ADD", "SUBTRACT", "MULTIPLY", "DIVIDE", "EQ",
                     "NE", "LT", "GT", "LE", "GE", "NOT_NODE", "INTEGER_DIVIDE", "MODULO", "NEGATE", "AND", "OR", "IF",
-                    "VARIABLE", "INTEGER_CONSTANT", "REAL_CONSTANT", "STRING_CONSTANT", "DIV_INTEGER"
+                    "VARIABLE", "INTEGER_CONSTANT", "REAL_CONSTANT", "STRING_CONSTANT", "DIV_INTEGER", "SWITCH", "SELECT_BRANCH", "SELECT_CONSTANTS"
             };
 
     constexpr NodeType PROGRAM          = NodeType::PROGRAM;
@@ -59,6 +59,9 @@ namespace intermediate {
     constexpr NodeType REAL_CONSTANT    = NodeType::REAL_CONSTANT;
     constexpr NodeType STRING_CONSTANT  = NodeType::STRING_CONSTANT;
     constexpr NodeType DIV_INTEGER      = NodeType::DIV_INTEGER; //added
+    constexpr NodeType SWITCH           = NodeType::SWITCH; // added
+    constexpr NodeType SELECT_BRANCH    = NodeType::SELECT_BRANCH; // added
+    constexpr NodeType SELECT_CONSTANTS = NodeType::SELECT_CONSTANTS; //added
 
     class Node
     {

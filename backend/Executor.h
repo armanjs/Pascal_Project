@@ -58,6 +58,7 @@ namespace backend {
         Object visitIntegerConstant(Node *integerConstantNode);
         Object visitRealConstant(Node *realConstantNode);
         Object visitStringConstant(Node *stringConstantNode);
+        Object visitSwitch(Node *switchNode);
 
         void printValue(vector<Node *> children);
         void runtimeError(Node *node, string message);

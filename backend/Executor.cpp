@@ -33,9 +33,17 @@ namespace backend {
         singletons.insert(INTEGER_CONSTANT);
         singletons.insert(REAL_CONSTANT);
         singletons.insert(STRING_CONSTANT);
+        singletons.insert(NEGATE); // negate added
+        singletons.insert(NOT); // not added
 
         relationals.insert(EQ);
+        relationals.insert(NE);
         relationals.insert(LT);
+        relationals.insert(GT);
+        relationals.insert(LE);
+        relationals.insert(GE);
+        relationals.insert(AND);
+        relationals.insert(OR);
     }
 
     Object Executor::visit(Node *node)
@@ -47,6 +55,8 @@ namespace backend {
             case COMPOUND :
             case ASSIGN :
             case LOOP :
+            case IF:
+            case SWITCH:
             case WRITE :
             case WRITELN :  return visitStatement(node);
 
@@ -71,6 +81,8 @@ namespace backend {
             case COMPOUND :  return visitCompound(statementNode);
             case ASSIGN :    return visitAssign(statementNode);
             case LOOP :      return visitLoop(statementNode);
+            case IF :        return visitIf(statementNode); // if added
+            case SWITCH :    return visitSwitch(statementNode); // switch added
             case WRITE :     return visitWrite(statementNode);
             case WRITELN :   return visitWriteln(statementNode);
 
@@ -122,6 +134,27 @@ namespace backend {
     Object Executor::visitTest(Node *testNode)
     {
         return visit(testNode->children[0]);
+    }
+
+    Object Executor::visitIf(Node *ifNode) { // IF i = j THEN x := 3.14 ELSE x := -5;
+        Node *expressionNode = ifNode->children[0]; // e.g. i = j (expression)
+        Node *thenStatementNode = ifNode->children[1]; // x := 3.14 (statement)
+        // check to see if the tree has more than 2 children
+        // if so, go to the right most child (statement), if not accept null pointer
+        Node *elseStatementNode = ifNode->children.size() > 2 ? ifNode->children[2]
+                                                                : nullptr;
+        bool b = visit(expressionNode).B; // cast expression to bool
+        if (b) { // if true
+            return visit(thenStatementNode);
+        }
+        else if (elseStatementNode != nullptr){
+            return visit(elseStatementNode);
+        }
+        return Object();
+    }
+
+    Object Executor::visitSwitch(Node *switchNode) {
+
     }
 
     Object Executor::visitWrite(Node *writeNode)
@@ -188,6 +221,8 @@ namespace backend {
                 case INTEGER_CONSTANT : return visitIntegerConstant(expressionNode);
                 case REAL_CONSTANT    : return visitRealConstant(expressionNode);
                 case STRING_CONSTANT  : return visitStringConstant(expressionNode);
+                case NOT              : return visitNotNode(expressionNode); // not added
+                case NEGATE           : return visitNegateNode(expressionNode); // negate added
 
                 default: return Object();
             }
@@ -205,7 +240,11 @@ namespace backend {
             switch (expressionNode->type)
             {
                 case EQ : value = value1 == value2; break;
+                case NE : value = value1 != value2; break;
                 case LT : value = value1 <  value2; break;
+                case GT : value = value1 >  value2; break;
+                case LE : value = value1 <=  value2; break;
+                case GE : value = value1 >=  value2; break;
 
                 default : break;
             }
@@ -269,6 +308,20 @@ namespace backend {
         printf("RUNTIME ERROR at line %d: %s: %s\n",
                lineNumber, message.c_str(), node->text.c_str());
         exit(-2);
+    }
+
+    Object Executor::visitNotNode(Node *NotNode) {
+//        Node *notNodeChild = NotNode->children[0];
+//        Object result = visitExpression(notNodeChild).B;
+//        return !result.B;
+//        easier way to implement
+        bool boolean = visit(NotNode->children[0]).B;
+        return !boolean;
+    }
+
+    Object Executor::visitNegateNode(Node *NegateNode) {
+        double value = visit(NegateNode->children[0]).D;
+        return -value;
     }
 
 }  // namespace backend

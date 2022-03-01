@@ -33,9 +33,9 @@ namespace frontend {
         statementStarters.insert(REPEAT);
         statementStarters.insert(WHILE); // while added
         statementStarters.insert(FOR); // for added
-        statementStarters.insert(IF); // if added
+        statementStarters.insert(TokenType::IF); // if added
         statementStarters.insert(CASE); // case added
-        statementStarters.insert(ELSE); // else should be added
+        //statementStarters.insert(ELSE); // else should be added
         statementStarters.insert(TokenType::WRITE);
         statementStarters.insert(TokenType::WRITELN);
 
@@ -54,10 +54,13 @@ namespace frontend {
 
         simpleExpressionOperators.insert(PLUS);
         simpleExpressionOperators.insert(MINUS);
+        simpleExpressionOperators.insert(OR);
 
         termOperators.insert(STAR);
         termOperators.insert(SLASH);
         termOperators.insert(DIV); // div added
+        termOperators.insert(MOD); // mod added
+        termOperators.insert(TokenType::AND); // and added
     }
 
     Node *Parser::parseProgram()
@@ -109,6 +112,9 @@ namespace frontend {
             case BEGIN :      stmtNode = parseCompoundStatement();   break;
             case REPEAT :     stmtNode = parseRepeatStatement();     break;
             case WHILE :      stmtNode = parseWhileStatement();      break; // while added
+            case FOR :        stmtNode = parseForStatement();        break; // for added
+            case IF :         stmtNode = parseIfStatement();         break; // if added
+            case CASE :       stmtNode = parseCaseStatement();       break; // case added
             case WRITE :      stmtNode = parseWriteStatement();      break;
             case WRITELN :    stmtNode = parseWritelnStatement();    break;
             case SEMICOLON :  stmtNode = nullptr; break;  // empty statement
@@ -232,22 +238,178 @@ namespace frontend {
         // create a TEST node
         Node *testNode = new Node(TEST);
         // create a NOT node
-        Node *notNode = new Node(NOT_NODE);
+        Node *notNode = new Node(NodeType::NOT);
 
         // look at parse tree
         loopNode->adopt(testNode);
         testNode->adopt(notNode);
 
         currentToken = scanner->nextToken();  // consume WHILE
-        testNode->adopt(parseExpression());
+        notNode->adopt(parseExpression());
 
         if (currentToken->type != DO){
             syntaxError("Expecting DO");
         }
-        currentToken = scanner->nextToken();
+        currentToken = scanner->nextToken(); // consume DO
         loopNode->adopt(parseStatement());
 
         return loopNode;
+    }
+
+    Node *Parser::parseForStatement() {
+        // The current token should now be FOR.
+
+        // Create a COMPOUND node.
+        Node *compoundNode = new Node(COMPOUND);
+        currentToken = scanner->nextToken();  // consume FOR
+
+        // The COMPOUND node adopts the control variable initialization.
+        Node *assignNode = parseAssignmentStatement();
+        compoundNode->adopt(assignNode);
+
+        // The COMPOUND node's second child is a LOOP node.
+        Node *loopNode = new Node(LOOP);
+        compoundNode->adopt(loopNode);
+
+        // The LOOP node's first child is the TEST node.
+        Node *testNode = new Node(TEST);
+        loopNode->adopt(testNode);
+
+        // get tree node of control
+        Node *ctrlNode = assignNode->children[0];
+
+        // The current token should be TO or DOWNTO.
+        bool upTo = true;
+        if (currentToken->type == TO)
+        {
+            currentToken = scanner->nextToken();  // consume TO
+        }
+        else if (currentToken->type == DOWNTO)
+        {
+            upTo = false;
+            currentToken = scanner->nextToken();  // consume DOWNTO
+        }
+        else syntaxError("Expecting TO or DOWNTO");
+
+        // Test against the terminal expression
+        Node *compareNode = upTo ? new Node(GT) : new Node(LT);
+        testNode->adopt(compareNode);
+        compareNode->adopt(ctrlNode);
+        compareNode->adopt(parseExpression());  // terminating expression
+
+        // current token should be DO
+        if (currentToken->type == DO)
+        {
+            currentToken = scanner->nextToken();  // consume DO
+        }
+        else syntaxError("Expecting DO");
+
+        // current LOOP node's second child is statement
+        loopNode->adopt(parseStatement());
+
+        // current LOOP node's third child is assignment
+        // decide if we need to increment or decrement control variable
+        assignNode = new Node(ASSIGN);
+        loopNode->adopt(assignNode);
+        assignNode->adopt(ctrlNode);
+        Node *opNode = upTo ? new Node(ADD) : new Node(SUBTRACT);
+        assignNode->adopt(opNode);
+        opNode->adopt(ctrlNode);
+        Node *numNode = new Node(INTEGER_CONSTANT);
+        numNode->value.L = 1;
+        numNode->value.D = 1;
+        opNode->adopt(numNode);
+
+        return compoundNode;
+    }
+
+    //IF statement parsing
+    Node *Parser::parseIfStatement(){
+        //creating IF node
+        Node *IFNode = new Node(NodeType::IF);    //doing nodetype::IF because otherwise it will link the tokentype::IF by default
+        currentToken = scanner->nextToken();  // consume IF
+
+        // The IFnode adopts the expression subtree.
+        IFNode->adopt(parseExpression());
+
+        //here the expression gets parsed, the next step is to verify THEN
+        if (currentToken->type == THEN) {
+            currentToken = scanner->nextToken();  // consume THEN
+        }
+        else{
+            syntaxError("Expecting THEN");  //-_- Error
+        }
+
+        //For THEN subtree, lets consider it as normal statement tree
+        IFNode->adopt(parseStatement());
+
+        //lets check for ELSE keyword, if there is 'ELSE' , we will let IFnode adopt it as its third child (ref. class4 slide #23)
+
+        if (currentToken->type == ELSE) {
+            currentToken = scanner->nextToken();  // consume ELSE
+            IFNode->adopt(parseStatement()); //again process ELSE subtree (like THEN subtree)
+        }
+
+        //Note:IF there is no ELSE, its not a syntax error (unlikeTHEN subtree)
+
+        return IFNode;
+    }
+
+    Node *Parser::parseCaseStatement() {
+        // the current token should be CASE
+
+        // create SELECT node
+        Node *selectNode = new Node(SELECT);
+        currentToken = scanner->nextToken(); // consume CASE
+        // the SELECT node will adopt the expression (e.g. i+1)
+        Node *expressionNode = parseExpression();
+        selectNode->adopt(expressionNode); // right child of SELECT
+
+        if (currentToken->type == OF){
+            currentToken = scanner->nextToken(); // consume OF
+        } else { // throw an error if OF does not exist
+            syntaxError("Expecting OF");
+        }
+
+        while ((currentToken->type == INTEGER) || (currentToken->type == PLUS)
+                || (currentToken->type == MINUS)){
+            // create SELECT branch nodes that will have children
+            // SELECT_BRANCH node will have a child SELECT_CONSTANT
+            // select will have another child that is just a statement
+
+            // create a SELECT_BRANCH node
+            Node *selectBranchNode = new Node(SELECT_BRANCH);
+            // create a SELECT_CONSTANTS node
+            Node *selectConstantsNode = new Node(SELECT_CONSTANTS);
+            // right child of SELECT
+            selectNode->adopt(selectBranchNode);
+            // left child of SELECT_CONSTANTS
+            selectBranchNode->adopt(selectConstantsNode);
+
+            // we should encounter a comma separated list of integers
+            // they should be parsed until : is reached
+            // INTEGER_CONSTANT may have + or -
+            // SELECT_CONSTANT will adopt the INTEGER_CONSTANT node
+            do {
+                bool negate = false; // set a boolean for - behind INTEGER_CONSTANT
+                // check for + or - for consumption
+                if ((currentToken->type == PLUS) || (currentToken->type == MINUS)){
+                    if (currentToken->type == MINUS){ // if minus was found return true
+                        negate = true;
+                    }
+                    currentToken = scanner->nextToken(); // consume + or -
+                }
+
+            } while (currentToken->type != COLON);
+
+            currentToken = scanner->nextToken(); // consume :
+
+            if (currentToken->type == COLON){
+                currentToken = scanner->nextToken(); // consume :
+            }
+            selectBranchNode->adopt(parseStatement());
+        }
+        return selectNode;
     }
 
     Node *Parser::parseWriteStatement()
@@ -350,9 +512,20 @@ namespace frontend {
         if (relationalOperators.find(currentToken->type) != relationalOperators.end())
         {
             TokenType tokenType = currentToken->type;
-            Node *opNode = tokenType == EQUALS    ? new Node(EQ)
-                                                  : tokenType == LESS_THAN ? new Node(LT)
-                                                                           :                          nullptr;
+            Node *opNode = nullptr;
+            switch (tokenType) {
+                case TokenType::EQUALS :              opNode = new Node(EQ); break;
+                case TokenType::NOT_EQUALS :          opNode = new Node(NE); break;
+                case TokenType::LESS_THAN :           opNode = new Node(LT); break;
+                case TokenType::GREATER_THAN :        opNode = new Node(GT); break;
+                case TokenType::LESS_THAN_EQUALS :    opNode = new Node(LE); break;
+                case TokenType::GREATER_THAN_EQUALS : opNode = new Node(GE); break;
+
+                default: syntaxError("Unexpected token");
+            }
+//            Node *opNode = tokenType == EQUALS    ? new Node(EQ)
+//                                                  : tokenType == LESS_THAN ? new Node(LT)
+//                                                  : nullptr;
 
             currentToken = scanner->nextToken();  // consume relational operator
 
@@ -382,8 +555,17 @@ namespace frontend {
         while (simpleExpressionOperators.find(currentToken->type) !=
                simpleExpressionOperators.end())
         {
-            Node *opNode = currentToken->type == PLUS ? new Node(ADD)
-                                                      : new Node(SUBTRACT);
+            Node *opNode = nullptr;
+            switch (currentToken->type) {
+                case TokenType::PLUS :  opNode = new Node(ADD); break;
+                case TokenType::MINUS : opNode = new Node(SUBTRACT); break;
+                case TokenType::OR :    opNode = new Node(NodeType::OR); break;
+
+                default: syntaxError("Unexpected token");
+
+            }
+//            Node *opNode = currentToken->type == PLUS ? new Node(ADD)
+//                                                      : new Node(SUBTRACT);
 
             currentToken = scanner->nextToken();  // consume the operator
 
@@ -401,16 +583,40 @@ namespace frontend {
     Node *Parser::parseTerm()
     {
         // The current token should now be an identifier or a number.
+        // what if the number starts with a + or - ?
+        Node *termNode = nullptr;
+
+        if (currentToken->type == PLUS){
+            currentToken = scanner->nextToken(); // consume +
+            termNode = parseFactor();
+        }
+        else if (currentToken->type == MINUS){
+            currentToken = scanner->nextToken(); // consume -
+            termNode = new Node(NEGATE);
+            termNode->adopt(parseFactor());
+        } else {
+            termNode = parseFactor();
+        }
 
         // The term's root node->
-        Node *termNode = parseFactor();
+        //Node *termNode = parseFactor();
 
         // Keep parsing more factors as long as the current token
         // is a * or / operator.
         while (termOperators.find(currentToken->type) != termOperators.end())
         {
-            Node *opNode = currentToken->type == STAR ? new Node(MULTIPLY)
-                                                      : new Node(DIVIDE);
+            Node * opNode = nullptr;
+            switch (currentToken->type) {
+                case TokenType::STAR  : opNode = new Node(MULTIPLY);           break;
+                case TokenType::SLASH : opNode = new Node(DIVIDE);             break;
+                case TokenType::DIV   : opNode = new Node(INTEGER_DIVIDE);     break;
+                case TokenType::MOD   : opNode = new Node(MODULO);             break;
+                case TokenType::AND   : opNode = new Node(NodeType::AND); break;
+
+                default : syntaxError("Unexpected token");
+            }
+//            Node *opNode = currentToken->type == STAR ? new Node(MULTIPLY)
+//                                                      : new Node(DIVIDE);
 
             currentToken = scanner->nextToken();  // consume the operator
 
@@ -445,6 +651,13 @@ namespace frontend {
             else syntaxError("Expecting )");
 
             return exprNode;
+        }
+
+        else if (currentToken->type == TokenType::NOT){
+            Node *notNode = new Node(NodeType::NOT);
+            currentToken = scanner->nextToken(); // consume NOT
+            notNode->adopt(parseFactor());
+            return notNode;
         }
 
         else syntaxError("Unexpected token");

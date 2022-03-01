@@ -53,6 +53,9 @@ namespace backend {
         Object visitTest(Node *testNode);
         Object visitWrite(Node *writeNode);
         Object visitWriteln(Node *writelnNode);
+        Object visitIf(Node *ifNode);
+        Object visitNotNode(Node *notNode);
+        Object visitNegateNode(Node *negateNode);
         Object visitExpression(Node *expressionNode);
         Object visitVariable(Node *variableNode);
         Object visitIntegerConstant(Node *integerConstantNode);

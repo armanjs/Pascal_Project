@@ -81,11 +81,43 @@ namespace backend {
             case ASSIGN :    return visitAssign(statementNode);
             case LOOP :      return visitLoop(statementNode);
             case WRITE :     return visitWrite(statementNode);
+            case IF :     return visitIf(statementNode);
             case WRITELN :   return visitWriteln(statementNode);
             case SWITCH  :   return visitSwitch(statementNode);
 
             default :        return Object();
         }
+    }
+
+     Object Executor::visitIf(Node *ifNode) { // IF i = j THEN x := 3.14 ELSE x := -5;
+        Node *expressionNode = ifNode->children[0]; // e.g. i = j (expression)
+        Node *thenStatementNode = ifNode->children[1]; // x := 3.14 (statement)
+        // check to see if the tree has more than 2 children
+        // if so, go to the right most child (statement), if not accept null pointer
+        Node *elseStatementNode = ifNode->children.size() > 2 ? ifNode->children[2]
+                                                                : nullptr;
+        bool b = visit(expressionNode).B; // cast expression to bool
+        if (b) { // if true
+            return visit(thenStatementNode);
+        }
+        else if (elseStatementNode != nullptr){
+            return visit(elseStatementNode);
+        }
+        return Object();
+    }
+    
+ Object Executor::visitNotNode(Node *NotNode) {
+//        Node *notNodeChild = NotNode->children[0];
+//        Object result = visitExpression(notNodeChild).B;
+//        return !result.B;
+//        easier way to implement
+        bool boolean = visit(NotNode->children[0]).B;
+        return !boolean;
+    }
+
+    Object Executor::visitNegateNode(Node *NegateNode) {
+        double value = visit(NegateNode->children[0]).D;
+        return -value;
     }
 
     Object Executor::visitCompound(Node *compoundNode)

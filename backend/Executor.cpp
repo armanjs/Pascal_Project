@@ -131,29 +131,22 @@ namespace backend {
 
     Object Executor::visitSwitch(Node *switchNode)
 {
-    // Evaluate the expression.
-    long value = (long) visit(switchNode->children[0]).D;
-
-    // Loop over the SELECT_BRANCH subtrees to look for a value match.
-    bool foundMatch = false;
-    for (int i = 1; (i < switchNode->children.size()) && !foundMatch; i++)
+    bool complete = false;
+    for (int x = 1; (x < switchNode->children.size()); x++)
     {
-        Node *branchNode = switchNode->children[i];
-        Node *constantsNode = branchNode->children[0];
-
-        // Loop over the branch constants.
-        for (Node *constantNode : constantsNode->children)
+        Node *BNODE = switchNode->children[x];
+        Node *CNODE = BNODE->children[0];
+        for (Node *curr : CNODE->children)
         {
-            // Match?
-            if (value == constantNode->value.L)
+            if (((long) visit(switchNode->children[0]).D) == curr->value.L)
             {
-                Node *stmtNode = branchNode->children[1];
-                visit(stmtNode);
-
-                foundMatch = true;
-                break;
+                complete = true;
+                Node *stmtNode = BNODE->children[1];
+                visit(stmtNode);     
             }
         }
+        if (complete)
+            break;
     }
 
     return Object();

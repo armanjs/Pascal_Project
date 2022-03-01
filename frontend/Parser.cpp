@@ -359,17 +359,17 @@ Node *Parser::parseCaseStatement()
 {
     // The current token should now be CASE.
 
-    // Create a SWITCH node.
+    // Create a SWITCH node and consume case
     Node *switchNode = new Node(SWITCH);
-    currentToken = scanner->nextToken();  // consume CASE
+    currentToken = scanner->nextToken();  
 
-    // The SWITCH node adopts the expression subtree.
+    // The SWITCH node adopts the expression subtree
     Node *exprNode = parseExpression();
     switchNode->adopt(exprNode);
 
     if (currentToken->type == OF)
-    {
-        currentToken = scanner->nextToken();  // consume OF
+    {   // consume OF token
+        currentToken = scanner->nextToken();  
     }
     else syntaxError("Expecting OF");
 
@@ -377,47 +377,41 @@ Node *Parser::parseCaseStatement()
     while (   (currentToken->type == INTEGER)
            || (currentToken->type == PLUS) || (currentToken->type == MINUS))
     {
-        // The SWITCH node adopts a SELECT_BRANCH node.
-        // The SELECT_BRANCH node adopts a SELECT_CONSTANTS node.
-        Node *branchNode = new Node(SELECT_BRANCH);
-        Node *constantsNode = new Node(SELECT_CONSTANTS);
-        switchNode->adopt(branchNode);
-        branchNode->adopt(constantsNode);
+        // The SWITCH node adopts SELECT_BRANCH 
+        // The SELECT_BRANCH node adopts SELECT_CONSTANTS 
+        Node *BNODE = new Node(SELECT_BRANCH);
+        Node *CNODE = new Node(SELECT_CONSTANTS);
+        switchNode->adopt(BNODE);
+        BNODE->adopt(CNODE);
 
-        // Parse comma-separated integer constants of a CASE branch until :
-        // The constant may be preceded by + or -
-        // The SELECT_CONSTANTS node adopts each INTEGER_CONSTANT node.
+        // parse constants for case until a colon appears
         do
         {
-            bool negate = false;
+            bool isNegative = false;
             if ((currentToken->type == PLUS) || (currentToken->type == MINUS))
-            {
-                negate = currentToken->type == MINUS;
-                currentToken = scanner->nextToken();  // consume + or -
+            {   //consume sign
+                isNegative = currentToken->type == MINUS;
+                currentToken = scanner->nextToken(); 
             }
-
             Node *constantNode = parseIntegerConstant();
-            if (negate) constantNode->value = -(constantNode->value.L);
-            constantsNode->adopt(constantNode);
-
+            if (isNegative == true) 
+                constantNode->value = -1 * (constantNode->value.L);
+            CNODE->adopt(constantNode);
             if (currentToken->type == COMMA)
-            {
-                currentToken = scanner->nextToken();  // consume ,
+            {   // consume colon
+                currentToken = scanner->nextToken(); 
             }
         } while (currentToken->type != COLON);
-
-        currentToken = scanner->nextToken();  // consume :
-
-        // The SELECT_BRANCH node adopts the branch statement subtree.
-        branchNode->adopt(parseStatement());
-
-        // Consume semicolons.
+        // consume colon
+        currentToken = scanner->nextToken();  
+        BNODE->adopt(parseStatement());
         if (currentToken->type == SEMICOLON)
         {
-            do
+            while (currentToken->type != SEMICOLON);
             {
-                currentToken = scanner->nextToken();  // consume ;
-            } while (currentToken->type == SEMICOLON);
+                // consume semicolon
+                currentToken = scanner->nextToken();  
+            } 
         }
     }
 

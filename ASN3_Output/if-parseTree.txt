@@ -1,0 +1,494 @@
+Parse tree:
+
+<PROGRAM TestIf>
+    <COMPOUND line 3>
+        <ASSIGN line 4>
+            <VARIABLE i />
+            <INTEGER_CONSTANT 1 />
+        </ASSIGN>
+        <ASSIGN line 5>
+            <VARIABLE j />
+            <INTEGER_CONSTANT 2 />
+        </ASSIGN>
+        <IF line 7>
+            <EQ>
+                <VARIABLE i />
+                <VARIABLE j />
+            </EQ>
+            <ASSIGN line 7>
+                <VARIABLE x />
+                <REAL_CONSTANT 3.140000 />
+            </ASSIGN>
+            <ASSIGN line 8>
+                <VARIABLE x />
+                <NEGATE>
+                    <INTEGER_CONSTANT 5 />
+                </NEGATE>
+            </ASSIGN>
+        </IF>
+        <IF line 10>
+            <NE>
+                <VARIABLE i />
+                <VARIABLE j />
+            </NE>
+            <ASSIGN line 10>
+                <VARIABLE y />
+                <REAL_CONSTANT 3.140000 />
+            </ASSIGN>
+            <ASSIGN line 11>
+                <VARIABLE y />
+                <NEGATE>
+                    <INTEGER_CONSTANT 5 />
+                </NEGATE>
+            </ASSIGN>
+        </IF>
+        <WRITE line 13>
+            <STRING_CONSTANT 'i = ' />
+        </WRITE>
+        <WRITE line 13>
+            <VARIABLE i />
+            <INTEGER_CONSTANT 3 />
+        </WRITE>
+        <WRITE line 14>
+            <STRING_CONSTANT ', j = ' />
+        </WRITE>
+        <WRITE line 14>
+            <VARIABLE j />
+            <INTEGER_CONSTANT 3 />
+        </WRITE>
+        <WRITE line 15>
+            <STRING_CONSTANT ', x = ' />
+        </WRITE>
+        <WRITE line 15>
+            <VARIABLE x />
+            <INTEGER_CONSTANT 5 />
+            <INTEGER_CONSTANT 2 />
+        </WRITE>
+        <WRITE line 16>
+            <STRING_CONSTANT ', y = ' />
+        </WRITE>
+        <WRITELN line 16>
+            <VARIABLE y />
+            <INTEGER_CONSTANT 5 />
+            <INTEGER_CONSTANT 2 />
+        </WRITELN>
+        <IF line 18>
+            <EQ>
+                <VARIABLE i />
+                <VARIABLE j />
+            </EQ>
+            <COMPOUND line 18>
+                <ASSIGN line 19>
+                    <VARIABLE x />
+                    <NEGATE>
+                        <INTEGER_CONSTANT 7 />
+                    </NEGATE>
+                </ASSIGN>
+            </COMPOUND>
+            <COMPOUND line 21>
+                <ASSIGN line 22>
+                    <VARIABLE x />
+                    <INTEGER_CONSTANT 8 />
+                </ASSIGN>
+            </COMPOUND>
+        </IF>
+        <IF line 25>
+            <NE>
+                <VARIABLE i />
+                <VARIABLE j />
+            </NE>
+            <COMPOUND line 25>
+                <ASSIGN line 26>
+                    <VARIABLE y />
+                    <INTEGER_CONSTANT 14 />
+                </ASSIGN>
+            </COMPOUND>
+            <COMPOUND line 28>
+                <ASSIGN line 29>
+                    <VARIABLE y />
+                    <NEGATE>
+                        <INTEGER_CONSTANT 2 />
+                    </NEGATE>
+                </ASSIGN>
+            </COMPOUND>
+        </IF>
+        <WRITE line 32>
+            <STRING_CONSTANT 'i = ' />
+        </WRITE>
+        <WRITE line 32>
+            <VARIABLE i />
+            <INTEGER_CONSTANT 3 />
+        </WRITE>
+        <WRITE line 33>
+            <STRING_CONSTANT ', j = ' />
+        </WRITE>
+        <WRITE line 33>
+            <VARIABLE j />
+            <INTEGER_CONSTANT 3 />
+        </WRITE>
+        <WRITE line 34>
+            <STRING_CONSTANT ', x = ' />
+        </WRITE>
+        <WRITE line 34>
+            <VARIABLE x />
+            <INTEGER_CONSTANT 5 />
+            <INTEGER_CONSTANT 2 />
+        </WRITE>
+        <WRITE line 35>
+            <STRING_CONSTANT ', y = ' />
+        </WRITE>
+        <WRITELN line 35>
+            <VARIABLE y />
+            <INTEGER_CONSTANT 5 />
+            <INTEGER_CONSTANT 2 />
+        </WRITELN>
+        <IF line 37>
+            <EQ>
+                <VARIABLE i />
+                <VARIABLE j />
+            </EQ>
+            <ASSIGN line 37>
+                <VARIABLE x />
+                <REAL_CONSTANT 55.550000 />
+            </ASSIGN>
+            <COMPOUND line 38>
+                <ASSIGN line 39>
+                    <VARIABLE x />
+                    <REAL_CONSTANT 77.770000 />
+                </ASSIGN>
+                <ASSIGN line 40>
+                    <VARIABLE y />
+                    <REAL_CONSTANT 88.880000 />
+                </ASSIGN>
+            </COMPOUND>
+        </IF>
+        <WRITE line 43>
+            <STRING_CONSTANT 'i = ' />
+        </WRITE>
+        <WRITE line 43>
+            <VARIABLE i />
+            <INTEGER_CONSTANT 3 />
+        </WRITE>
+        <WRITE line 44>
+            <STRING_CONSTANT ', j = ' />
+        </WRITE>
+        <WRITE line 44>
+            <VARIABLE j />
+            <INTEGER_CONSTANT 3 />
+        </WRITE>
+        <WRITE line 45>
+            <STRING_CONSTANT ', x = ' />
+        </WRITE>
+        <WRITE line 45>
+            <VARIABLE x />
+            <INTEGER_CONSTANT 5 />
+            <INTEGER_CONSTANT 2 />
+        </WRITE>
+        <WRITE line 46>
+            <STRING_CONSTANT ', y = ' />
+        </WRITE>
+        <WRITELN line 46>
+            <VARIABLE y />
+            <INTEGER_CONSTANT 5 />
+            <INTEGER_CONSTANT 2 />
+        </WRITELN>
+        <ASSIGN line 48>
+            <VARIABLE k />
+            <INTEGER_CONSTANT 10 />
+        </ASSIGN>
+        <IF line 50>
+            <EQ>
+                <VARIABLE i />
+                <VARIABLE j />
+            </EQ>
+            <ASSIGN line 50>
+                <VARIABLE i />
+                <INTEGER_CONSTANT 33 />
+            </ASSIGN>
+            <IF line 51>
+                <NOT_NODE>
+                    <LE>
+                        <VARIABLE i />
+                        <VARIABLE j />
+                    </LE>
+                </NOT_NODE>
+                <ASSIGN line 51>
+                    <VARIABLE i />
+                    <INTEGER_CONSTANT 44 />
+                </ASSIGN>
+                <IF line 52>
+                    <EQ>
+                        <VARIABLE i />
+                        <VARIABLE j />
+                    </EQ>
+                    <ASSIGN line 52>
+                        <VARIABLE i />
+                        <INTEGER_CONSTANT 55 />
+                    </ASSIGN>
+                    <ASSIGN line 53>
+                        <VARIABLE i />
+                        <INTEGER_CONSTANT 6 />
+                    </ASSIGN>
+                </IF>
+            </IF>
+        </IF>
+        <WRITE line 55>
+            <STRING_CONSTANT 'i = ' />
+        </WRITE>
+        <WRITE line 55>
+            <VARIABLE i />
+            <INTEGER_CONSTANT 3 />
+        </WRITE>
+        <WRITE line 56>
+            <STRING_CONSTANT ', j = ' />
+        </WRITE>
+        <WRITE line 56>
+            <VARIABLE j />
+            <INTEGER_CONSTANT 3 />
+        </WRITE>
+        <WRITE line 57>
+            <STRING_CONSTANT ', x = ' />
+        </WRITE>
+        <WRITE line 57>
+            <VARIABLE x />
+            <INTEGER_CONSTANT 5 />
+            <INTEGER_CONSTANT 2 />
+        </WRITE>
+        <WRITE line 58>
+            <STRING_CONSTANT ', y = ' />
+        </WRITE>
+        <WRITELN line 58>
+            <VARIABLE y />
+            <INTEGER_CONSTANT 5 />
+            <INTEGER_CONSTANT 2 />
+        </WRITELN>
+        <WRITE line 59>
+            <STRING_CONSTANT 'k = ' />
+        </WRITE>
+        <WRITELN line 59>
+            <VARIABLE k />
+            <INTEGER_CONSTANT 3 />
+        </WRITELN>
+        <IF line 61>
+            <NOT_NODE>
+                <LE>
+                    <VARIABLE i />
+                    <VARIABLE j />
+                </LE>
+            </NOT_NODE>
+            <IF line 61>
+                <LE>
+                    <DIV_INTEGER>
+                        <VARIABLE i />
+                        <INTEGER_CONSTANT 22 />
+                    </DIV_INTEGER>
+                    <VARIABLE j />
+                </LE>
+                <ASSIGN line 61>
+                    <VARIABLE j />
+                    <INTEGER_CONSTANT 9 />
+                </ASSIGN>
+                <ASSIGN line 61>
+                    <VARIABLE j />
+                    <NEGATE>
+                        <INTEGER_CONSTANT 9 />
+                    </NEGATE>
+                </ASSIGN>
+            </IF>
+        </IF>
+        <WRITE line 63>
+            <STRING_CONSTANT 'i = ' />
+        </WRITE>
+        <WRITE line 63>
+            <VARIABLE i />
+            <INTEGER_CONSTANT 3 />
+        </WRITE>
+        <WRITE line 64>
+            <STRING_CONSTANT ', j = ' />
+        </WRITE>
+        <WRITE line 64>
+            <VARIABLE j />
+            <INTEGER_CONSTANT 3 />
+        </WRITE>
+        <WRITE line 65>
+            <STRING_CONSTANT ', x = ' />
+        </WRITE>
+        <WRITE line 65>
+            <VARIABLE x />
+            <INTEGER_CONSTANT 5 />
+            <INTEGER_CONSTANT 2 />
+        </WRITE>
+        <WRITE line 66>
+            <STRING_CONSTANT ', y = ' />
+        </WRITE>
+        <WRITELN line 66>
+            <VARIABLE y />
+            <INTEGER_CONSTANT 5 />
+            <INTEGER_CONSTANT 2 />
+        </WRITELN>
+        <WRITE line 67>
+            <STRING_CONSTANT 'k = ' />
+        </WRITE>
+        <WRITELN line 67>
+            <VARIABLE k />
+            <INTEGER_CONSTANT 3 />
+        </WRITELN>
+        <IF line 69>
+            <EQ>
+                <VARIABLE i />
+                <VARIABLE j />
+            </EQ>
+            <IF line 69>
+                <LE>
+                    <VARIABLE i />
+                    <VARIABLE j />
+                </LE>
+                <ASSIGN line 69>
+                    <VARIABLE k />
+                    <INTEGER_CONSTANT 11 />
+                </ASSIGN>
+                <ASSIGN line 69>
+                    <VARIABLE k />
+                    <INTEGER_CONSTANT 12 />
+                </ASSIGN>
+            </IF>
+        </IF>
+        <WRITE line 71>
+            <STRING_CONSTANT 'i = ' />
+        </WRITE>
+        <WRITE line 71>
+            <VARIABLE i />
+            <INTEGER_CONSTANT 3 />
+        </WRITE>
+        <WRITE line 72>
+            <STRING_CONSTANT ', j = ' />
+        </WRITE>
+        <WRITE line 72>
+            <VARIABLE j />
+            <INTEGER_CONSTANT 3 />
+        </WRITE>
+        <WRITE line 73>
+            <STRING_CONSTANT ', x = ' />
+        </WRITE>
+        <WRITE line 73>
+            <VARIABLE x />
+            <INTEGER_CONSTANT 5 />
+            <INTEGER_CONSTANT 2 />
+        </WRITE>
+        <WRITE line 74>
+            <STRING_CONSTANT ', y = ' />
+        </WRITE>
+        <WRITELN line 74>
+            <VARIABLE y />
+            <INTEGER_CONSTANT 5 />
+            <INTEGER_CONSTANT 2 />
+        </WRITELN>
+        <WRITE line 75>
+            <STRING_CONSTANT 'k = ' />
+        </WRITE>
+        <WRITELN line 75>
+            <VARIABLE k />
+            <INTEGER_CONSTANT 3 />
+        </WRITELN>
+        <WRITELN line 77 />
+        <ASSIGN line 78>
+            <VARIABLE x />
+            <SUBTRACT>
+                <SUBTRACT>
+                    <ADD>
+                        <ADD>
+                            <VARIABLE i />
+                            <VARIABLE j />
+                        </ADD>
+                        <VARIABLE k />
+                    </ADD>
+                    <VARIABLE x />
+                </SUBTRACT>
+                <VARIABLE y />
+            </SUBTRACT>
+        </ASSIGN>
+        <WRITE line 79>
+            <STRING_CONSTANT 'x = ' />
+        </WRITE>
+        <WRITELN line 79>
+            <VARIABLE x />
+            <INTEGER_CONSTANT 5 />
+            <INTEGER_CONSTANT 2 />
+        </WRITELN>
+        <WRITELN line 81 />
+        <IF line 82>
+            <AND>
+                <AND>
+                    <AND>
+                        <NOT_NODE>
+                            <EQ>
+                                <VARIABLE i />
+                                <VARIABLE j />
+                            </EQ>
+                        </NOT_NODE>
+                        <LT>
+                            <VARIABLE i />
+                            <VARIABLE j />
+                        </LT>
+                    </AND>
+                    <NE>
+                        <VARIABLE i />
+                        <VARIABLE j />
+                    </NE>
+                </AND>
+                <LT>
+                    <VARIABLE x />
+                    <VARIABLE y />
+                </LT>
+            </AND>
+            <WRITE line 82>
+                <STRING_CONSTANT 'Good-bye' />
+            </WRITE>
+        </IF>
+        <IF line 83>
+            <OR>
+                <NOT_NODE>
+                    <LT>
+                        <VARIABLE i />
+                        <VARIABLE j />
+                    </LT>
+                </NOT_NODE>
+                <NE>
+                    <VARIABLE x />
+                    <VARIABLE y />
+                </NE>
+            </OR>
+            <IF line 83>
+                <GT>
+                    <VARIABLE i />
+                    <DIVIDE>
+                        <VARIABLE j />
+                        <INTEGER_CONSTANT 2 />
+                    </DIVIDE>
+                </GT>
+                <IF line 83>
+                    <NE>
+                        <VARIABLE i />
+                        <VARIABLE j />
+                    </NE>
+                    <IF line 83>
+                        <LT>
+                            <VARIABLE x />
+                            <MULTIPLY>
+                                <INTEGER_CONSTANT 5 />
+                                <VARIABLE y />
+                            </MULTIPLY>
+                        </LT>
+                        <WRITE line 83>
+                            <STRING_CONSTANT ', world!' />
+                        </WRITE>
+                    </IF>
+                </IF>
+            </IF>
+        </IF>
+        <WRITELN line 85 />
+        <WRITELN line 86>
+            <STRING_CONSTANT 'Done!' />
+        </WRITELN>
+    </COMPOUND>
+</PROGRAM>

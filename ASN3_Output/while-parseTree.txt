@@ -1,0 +1,94 @@
+Parse tree:
+
+<PROGRAM TestWhile>
+    <COMPOUND line 3>
+        <ASSIGN line 4>
+            <VARIABLE i />
+            <INTEGER_CONSTANT 1 />
+        </ASSIGN>
+        <LOOP line 5>
+            <TEST>
+                <NOT_NODE>
+                    <LE>
+                        <VARIABLE i />        
+                        <INTEGER_CONSTANT 5 />
+                    </LE>
+                </NOT_NODE>
+            </TEST>
+            <COMPOUND line 5>
+                <WRITE line 6>
+                    <STRING_CONSTANT 'i = ' />
+                </WRITE>
+                <WRITELN line 6>
+                    <VARIABLE i />
+                </WRITELN>
+                <ASSIGN line 7>
+                    <VARIABLE i />
+                    <ADD>
+                        <VARIABLE i />
+                        <INTEGER_CONSTANT 1 />
+                    </ADD>
+                </ASSIGN>
+            </COMPOUND>
+        </LOOP>
+        <WRITELN line 10 />
+        <ASSIGN line 12>
+            <VARIABLE i />
+            <INTEGER_CONSTANT 1 />
+        </ASSIGN>
+        <LOOP line 13>
+            <TEST>
+                <NOT_NODE>
+                    <LE>
+                        <VARIABLE i />
+                        <INTEGER_CONSTANT 5 />
+                    </LE>
+                </NOT_NODE>
+            </TEST>
+            <COMPOUND line 13>
+                <ASSIGN line 14>
+                    <VARIABLE j />
+                    <INTEGER_CONSTANT 10 />
+                </ASSIGN>
+                <LOOP line 16>
+                    <TEST>
+                        <NOT_NODE>
+                            <LE>
+                                <VARIABLE j />
+                                <INTEGER_CONSTANT 30 />
+                            </LE>
+                        </NOT_NODE>
+                    </TEST>
+                    <COMPOUND line 16>
+                        <WRITE line 17>
+                            <STRING_CONSTANT 'i = ' />
+                        </WRITE>
+                        <WRITE line 17>
+                            <VARIABLE i />
+                        </WRITE>
+                        <WRITE line 18>
+                            <STRING_CONSTANT ', j = ' />
+                        </WRITE>
+                        <WRITELN line 18>
+                            <VARIABLE j />
+                        </WRITELN>
+                        <ASSIGN line 19>
+                            <VARIABLE j />
+                            <ADD>
+                                <VARIABLE j />
+                                <INTEGER_CONSTANT 10 />
+                            </ADD>
+                        </ASSIGN>
+                    </COMPOUND>
+                </LOOP>
+                <ASSIGN line 22>
+                    <VARIABLE i />
+                    <ADD>
+                        <VARIABLE i />
+                        <INTEGER_CONSTANT 1 />
+                    </ADD>
+                </ASSIGN>
+            </COMPOUND>
+        </LOOP>
+    </COMPOUND>
+</PROGRAM>

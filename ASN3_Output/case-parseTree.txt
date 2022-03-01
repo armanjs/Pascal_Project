@@ -1,0 +1,258 @@
+Parse tree:
+
+<PROGRAM TestCase>
+    <COMPOUND line 3>
+        <ASSIGN line 4>
+            <VARIABLE i />
+            <INTEGER_CONSTANT 3 />
+        </ASSIGN>
+        <ASSIGN line 4>
+            <VARIABLE even />
+            <NEGATE>
+                <INTEGER_CONSTANT 999 />
+            </NEGATE>
+        </ASSIGN>
+        <ASSIGN line 4>
+            <VARIABLE odd />
+            <NEGATE>
+                <INTEGER_CONSTANT 999 />
+            </NEGATE>
+        </ASSIGN>
+        <ASSIGN line 4>
+            <VARIABLE prime />
+            <NEGATE>
+                <INTEGER_CONSTANT 999 />
+            </NEGATE>
+        </ASSIGN>
+        <SWITCH line 6>
+            <ADD>
+                <VARIABLE i />
+                <INTEGER_CONSTANT 1 />
+            </ADD>
+            <SELECT_BRANCH>
+                <SELECT_CONSTANTS>
+                    <INTEGER_CONSTANT 1 />
+                </SELECT_CONSTANTS>
+                <ASSIGN line 7>
+                    <VARIABLE j />
+                    <VARIABLE i />
+                </ASSIGN>
+            </SELECT_BRANCH>
+            <SELECT_BRANCH>
+                <SELECT_CONSTANTS>
+                    <INTEGER_CONSTANT -8 />
+                </SELECT_CONSTANTS>
+                <ASSIGN line 8>
+                    <VARIABLE j />
+                    <MULTIPLY>
+                        <INTEGER_CONSTANT 8 />
+                        <VARIABLE i />
+                    </MULTIPLY>
+                </ASSIGN>
+            </SELECT_BRANCH>
+            <SELECT_BRANCH>
+                <SELECT_CONSTANTS>
+                    <INTEGER_CONSTANT 5 />
+                    <INTEGER_CONSTANT 7 />
+                    <INTEGER_CONSTANT 4 />
+                </SELECT_CONSTANTS>
+                <ASSIGN line 9>
+                    <VARIABLE j />
+                    <MULTIPLY>
+                        <INTEGER_CONSTANT 574 />
+                        <VARIABLE i />
+                    </MULTIPLY>
+                </ASSIGN>
+            </SELECT_BRANCH>
+        </SWITCH>
+        <WRITE line 12>
+            <STRING_CONSTANT 'j = ' />
+        </WRITE>
+        <WRITELN line 12>
+            <VARIABLE j />
+        </WRITELN>
+        <WRITELN line 13 />
+        <COMPOUND line 15>
+            <ASSIGN>
+                <VARIABLE i />
+                <NEGATE>
+                    <INTEGER_CONSTANT 5 />
+                </NEGATE>
+            </ASSIGN>
+            <LOOP>
+                <TEST>
+                    <GT>
+                        <VARIABLE i />
+                        <INTEGER_CONSTANT 15 />
+                    </GT>
+                </TEST>
+                <COMPOUND line 15>
+                    <SWITCH line 16>
+                        <VARIABLE i />
+                        <SELECT_BRANCH>
+                            <SELECT_CONSTANTS>
+                                <INTEGER_CONSTANT 2 />
+                            </SELECT_CONSTANTS>
+                            <COMPOUND line 17>
+                                <ASSIGN line 17>
+                                    <VARIABLE even />
+                                    <VARIABLE i />
+                                </ASSIGN>
+                                <ASSIGN line 17>
+                                    <VARIABLE prime />
+                                    <VARIABLE i />
+                                </ASSIGN>
+                            </COMPOUND>
+                        </SELECT_BRANCH>
+                        <SELECT_BRANCH>
+                            <SELECT_CONSTANTS>
+                                <INTEGER_CONSTANT -4 />
+                                <INTEGER_CONSTANT -2 />
+                                <INTEGER_CONSTANT 0 />
+                                <INTEGER_CONSTANT 4 />
+                                <INTEGER_CONSTANT 6 />
+                                <INTEGER_CONSTANT 8 />
+                                <INTEGER_CONSTANT 10 />
+                                <INTEGER_CONSTANT 12 />
+                                <INTEGER_CONSTANT 14 />
+                            </SELECT_CONSTANTS>
+                            <ASSIGN line 18>
+                                <VARIABLE even />
+                                <VARIABLE i />
+                            </ASSIGN>
+                        </SELECT_BRANCH>
+                        <SELECT_BRANCH>
+                            <SELECT_CONSTANTS>
+                                <INTEGER_CONSTANT -5 />
+                                <INTEGER_CONSTANT -3 />
+                                <INTEGER_CONSTANT -1 />
+                                <INTEGER_CONSTANT 1 />
+                                <INTEGER_CONSTANT 3 />
+                                <INTEGER_CONSTANT 5 />
+                                <INTEGER_CONSTANT 7 />
+                                <INTEGER_CONSTANT 9 />
+                                <INTEGER_CONSTANT 11 />
+                                <INTEGER_CONSTANT 13 />
+                                <INTEGER_CONSTANT 15 />
+                            </SELECT_CONSTANTS>
+                            <COMPOUND line 20>
+                                <ASSIGN line 21>
+                                    <VARIABLE odd />
+                                    <VARIABLE i />
+                                </ASSIGN>
+                                <SWITCH line 22>
+                                    <VARIABLE i />
+                                    <SELECT_BRANCH>
+                                        <SELECT_CONSTANTS>
+                                            <INTEGER_CONSTANT 2 />
+                                            <INTEGER_CONSTANT 3 />
+                                            <INTEGER_CONSTANT 5 />
+                                            <INTEGER_CONSTANT 7 />
+                                            <INTEGER_CONSTANT 11 />
+                                            <INTEGER_CONSTANT 13 />
+                                        </SELECT_CONSTANTS>
+                                        <ASSIGN line 23>
+                                            <VARIABLE prime />
+                                            <VARIABLE i />
+                                        </ASSIGN>
+                                    </SELECT_BRANCH>
+                                </SWITCH>
+                            </COMPOUND>
+                        </SELECT_BRANCH>
+                    </SWITCH>
+                    <WRITE line 28>
+                        <STRING_CONSTANT 'i =' />
+                    </WRITE>
+                    <WRITE line 28>
+                        <VARIABLE i />
+                        <INTEGER_CONSTANT 3 />
+                    </WRITE>
+                    <WRITE line 29>
+                        <STRING_CONSTANT ', even = ' />
+                    </WRITE>
+                    <IF line 29>
+                        <NE>
+                            <VARIABLE even />
+                            <NEGATE>
+                                <INTEGER_CONSTANT 999 />
+                            </NEGATE>
+                        </NE>
+                        <WRITE line 29>
+                            <VARIABLE even />
+                            <INTEGER_CONSTANT 3 />
+                        </WRITE>
+                        <WRITE line 29>
+                            <STRING_CONSTANT '...' />
+                        </WRITE>
+                    </IF>
+                    <WRITE line 30>
+                        <STRING_CONSTANT ', odd = ' />
+                    </WRITE>
+                    <IF line 30>
+                        <NE>
+                            <VARIABLE odd />
+                            <NEGATE>
+                                <INTEGER_CONSTANT 999 />
+                            </NEGATE>
+                        </NE>
+                        <WRITE line 30>
+                            <VARIABLE odd />
+                            <INTEGER_CONSTANT 3 />
+                        </WRITE>
+                        <WRITE line 30>
+                            <STRING_CONSTANT '...' />
+                        </WRITE>
+                    </IF>
+                    <WRITE line 31>
+                        <STRING_CONSTANT ', prime = ' />
+                    </WRITE>
+                    <IF line 31>
+                        <NE>
+                            <VARIABLE prime />
+                            <NEGATE>
+                                <INTEGER_CONSTANT 999 />
+                            </NEGATE>
+                        </NE>
+                        <WRITE line 31>
+                            <VARIABLE prime />
+                            <INTEGER_CONSTANT 3 />
+                        </WRITE>
+                        <WRITE line 31>
+                            <STRING_CONSTANT '...' />
+                        </WRITE>
+                    </IF>
+                    <WRITELN line 32 />
+                    <ASSIGN line 34>
+                        <VARIABLE even />
+                        <NEGATE>
+                            <INTEGER_CONSTANT 999 />
+                        </NEGATE>
+                    </ASSIGN>
+                    <ASSIGN line 34>
+                        <VARIABLE odd />
+                        <NEGATE>
+                            <INTEGER_CONSTANT 999 />
+                        </NEGATE>
+                    </ASSIGN>
+                    <ASSIGN line 34>
+                        <VARIABLE prime />
+                        <NEGATE>
+                            <INTEGER_CONSTANT 999 />
+                        </NEGATE>
+                    </ASSIGN>
+                </COMPOUND>
+                <ASSIGN>
+                    <VARIABLE i />
+                    <ADD>
+                        <VARIABLE i />
+                        <INTEGER_CONSTANT 1 />
+                    </ADD>
+                </ASSIGN>
+            </LOOP>
+        </COMPOUND>
+        <WRITELN line 37 />
+        <WRITELN line 38>
+            <STRING_CONSTANT 'Done!' />
+        </WRITELN>
+    </COMPOUND>
+</PROGRAM>

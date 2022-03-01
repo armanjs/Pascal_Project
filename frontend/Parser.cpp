@@ -372,7 +372,7 @@ namespace frontend {
         }
 
         while ((currentToken->type == INTEGER) || (currentToken->type == PLUS)
-                || (currentToken->type == MINUS)){
+                || (currentToken->type == MINUS)) {
             // create SELECT branch nodes that will have children
             // SELECT_BRANCH node will have a child SELECT_CONSTANT
             // select will have another child that is just a statement
@@ -393,22 +393,44 @@ namespace frontend {
             do {
                 bool negate = false; // set a boolean for - behind INTEGER_CONSTANT
                 // check for + or - for consumption
-                if ((currentToken->type == PLUS) || (currentToken->type == MINUS)){
-                    if (currentToken->type == MINUS){ // if minus was found return true
-                        negate = true;
+                if ((currentToken->type == PLUS) || (currentToken->type == MINUS)) {
+                    if (currentToken->type == MINUS) { // if minus was found return true
+                        negate = true; // return true for the negate bool
                     }
                     currentToken = scanner->nextToken(); // consume + or -
                 }
+                // create a constantNode and parse it
+                Node *constNode = parseIntegerConstant();
+                if (negate) {
+                    // cast the constant node to a long and negate it
+                    constNode->value = -(constNode->value.L);
+                }
+                constNode->adopt(constNode);
+                if (currentToken->type == COMMA) { // if its a comma separated list of ints
+                    currentToken = scanner->nextToken(); // consume the ,
+                }
 
-            } while (currentToken->type != COLON);
+            } while (currentToken->type != COLON); // continue until : is reached
 
             currentToken = scanner->nextToken(); // consume :
 
-            if (currentToken->type == COLON){
-                currentToken = scanner->nextToken(); // consume :
-            }
+            // the SELECT_BRANCH node adopts the statement
             selectBranchNode->adopt(parseStatement());
+
+            if (currentToken->type == SEMICOLON) {
+                do { // keep consuming ; s
+                    currentToken = scanner->nextToken();
+                } while (currentToken->type == SEMICOLON);
+            }
         }
+
+        if (currentToken->type == END){
+            currentToken = scanner->nextToken(); // consume END
+            // if the END statement is missing throw an error
+        } else if (statementStarters.find(currentToken->type) != statementStarters.end()){
+            syntaxError("Missing END");
+        }
+
         return selectNode;
     }
 

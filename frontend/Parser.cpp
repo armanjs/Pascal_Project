@@ -202,17 +202,6 @@ namespace frontend {
         }
     }
 
-//    void Parser::parseConstantList(Node *parentNode){
-//        // we should be at the number list e.g. 9,5,2:
-//        while (currentToken->type != COLON){
-//            // create an Integer constant node and adopt it
-//            parentNode->adopt(parseIntegerConstant());
-//            if (currentToken->type == COMMA){
-//                currentToken = scanner->nextToken(); // consume comma
-//            }
-//        }
-//    }
-
     Node *Parser::parseRepeatStatement()
     {
         // The current token should now be REPEAT.
